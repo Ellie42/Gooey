@@ -10,10 +10,6 @@ type PanelWidget struct {
 	directionMultiplierY int
 }
 
-func (p *PanelWidget) GetRectRelative() *dimension.Rect {
-	return &p.Rect
-}
-
 func (p *PanelWidget) Render() {
 	if p.Rect.X < 0 || p.Rect.X+p.Rect.Width > 1 {
 		p.directionMultiplierX *= -1
@@ -23,8 +19,8 @@ func (p *PanelWidget) Render() {
 		p.directionMultiplierY *= -1
 	}
 
-	p.Rect.X += 0.01 * float32(p.directionMultiplierX)
-	p.Rect.Y += 0.015 * float32(p.directionMultiplierY)
+	p.Rect.X += 0.001 * float32(p.directionMultiplierX)
+	p.Rect.Y += 0.0015 * float32(p.directionMultiplierY)
 
 	p.baseRender()
 }

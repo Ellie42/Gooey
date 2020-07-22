@@ -5,10 +5,9 @@ type Rect struct {
 }
 
 func (r Rect) RelativeTo(parent Rect) *Rect {
-	return &Rect{
-		X:      r.X * float32(parent.Width),
-		Y:      r.Y * float32(parent.Height),
-		Width:  r.Width * float32(parent.Width),
-		Height: r.Height * float32(parent.Height),
-	}
+	r.X = parent.X + r.X*float32(parent.Width)
+	r.Y = parent.Y + r.Y*float32(parent.Height)
+	r.Width = r.Width * float32(parent.Width)
+	r.Height = r.Height * float32(parent.Height)
+	return &r
 }

@@ -16,6 +16,10 @@ func (w *Window) GetRectRelative() *dimension.Rect {
 	return &w.Context.Rect
 }
 
+func (w *Window) GetChildRectRelative(index int) *dimension.Rect {
+	return w.GetRectRelative()
+}
+
 func (w *Window) create(preferences Preferences) error {
 	for pref, value := range preferences.GLFWHints {
 		glfw.WindowHint(pref, value)

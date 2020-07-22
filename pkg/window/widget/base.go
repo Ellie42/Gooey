@@ -4,40 +4,49 @@ import "git.agehadev.com/elliebelly/gooey/pkg/dimension"
 
 type BaseWidget struct {
 	Parent   WidgetParent
+	Index    int
 	Children []Widget
 	Rect     dimension.Rect
 }
 
-func (p *BaseWidget) GetRectRelative() *dimension.Rect {
-	return p.Rect.RelativeTo(*p.Parent.GetRectRelative())
+func (b *BaseWidget) GetRectRelative() *dimension.Rect {
+	return b.Rect.RelativeTo(*b.Parent.GetChildRectRelative(b.Index))
 }
 
-func (p *BaseWidget) Init(parent WidgetParent) {
-	p.baseInit(parent)
+func (b *BaseWidget) GetChildRectRelative(index int) *dimension.Rect {
+	return b.GetRectRelative()
 }
 
-func (p *BaseWidget) baseInit(parent WidgetParent) {
-	p.Parent = parent
+func (b *BaseWidget) SetIndex(index int) {
+	b.Index = index
+}
 
-	if p.Children == nil {
+func (b *BaseWidget) Init(parent WidgetParent) {
+	b.baseInit(parent)
+}
+
+func (b *BaseWidget) baseInit(parent WidgetParent) {
+	b.Parent = parent
+
+	if b.Children == nil {
 		return
 	}
 
-	for _, child := range p.Children {
-		child.Init(p)
+	for _, child := range b.Children {
+		child.Init(b)
 	}
 }
 
-func (p *BaseWidget) Render() {
-	p.baseRender()
+func (b *BaseWidget) Render() {
+	b.baseRender()
 }
 
-func (p *BaseWidget) baseRender() {
-	if p.Children == nil {
+func (b *BaseWidget) baseRender() {
+	if b.Children == nil {
 		return
 	}
 
-	for _, child := range p.Children {
+	for _, child := range b.Children {
 		child.Render()
 	}
 }
