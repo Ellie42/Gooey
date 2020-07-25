@@ -2,11 +2,17 @@ package gooey
 
 import (
 	"git.agehadev.com/elliebelly/gooey/internal/renderer"
-	"git.agehadev.com/elliebelly/gooey/pkg/window"
+	"git.agehadev.com/elliebelly/gooey/pkg/widget"
+	"log"
+	"os"
+	"runtime"
+	"runtime/pprof"
 )
 
+var Renderer *renderer.Renderer
+
 type Gooey struct {
-	Window   *window.WindowManager
+	Window   *widget.WindowManager
 	Renderer *renderer.Renderer
 	Stop     bool
 }
@@ -18,6 +24,7 @@ func (g *Gooey) Loop() {
 		panic("No windows have been created!")
 	}
 
+	g.Window.Windows[0].MakeCurrent()
 	g.Window.Windows[0].MakeCurrent()
 
 	g.Renderer.Init()
@@ -34,17 +41,28 @@ func (g *Gooey) Loop() {
 				continue
 			}
 
-			if !w.Layout.Initialised {
-				w.Layout.Init(w)
+			if !w.Initialised {
+				w.Init()
 			}
 
 			w.MakeCurrent()
+
 			g.Renderer.Clear()
 
-			w.Layout.Render()
+			w.Render()
 
 			w.Tick()
 		}
+	}
+
+	f, err := os.Create("dumps/memprofile")
+	if err != nil {
+		log.Fatal("could not create memory profile: ", err)
+	}
+	defer f.Close() // error handling omitted for example
+	runtime.GC()    // get up-to-date statistics
+	if err := pprof.WriteHeapProfile(f); err != nil {
+		log.Fatal("could not write memory profile: ", err)
 	}
 }
 
@@ -53,9 +71,10 @@ func (g *Gooey) cleanup() {
 }
 
 func Init() (gooey *Gooey, err error) {
+	Renderer = renderer.NewRenderer()
 	gooey = &Gooey{
-		Window:   window.NewWindowManager(),
-		Renderer: renderer.NewRenderer(),
+		Window:   widget.NewWindowManager(),
+		Renderer: Renderer,
 	}
 
 	err = gooey.Window.Init()
