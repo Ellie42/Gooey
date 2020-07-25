@@ -29,8 +29,9 @@ const (
 )
 
 type WidgetPreferences struct {
-	Rect    *dimension.Rect
-	Padding *dimension.DirectionalRect
+	Rect            *dimension.Rect
+	Padding         *dimension.DirectionalRect
+	DimensionBounds *dimension.Dimensions
 
 	FixedRatioAxis FixedAspectAxis
 	FixedRatio     float32

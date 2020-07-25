@@ -57,3 +57,19 @@ func (r Rect) ToBoundingBox() BoundingBox {
 		MaxY: r.Y + r.Height,
 	}
 }
+
+func (r Rect) GetRatioX() float32 {
+	return r.Height / r.Width
+}
+
+func (r Rect) GetRatioY() float32 {
+	return r.Width / r.Height
+}
+
+func (r Rect) MultipliedByDimension(resolution DimensionsInt) Rect {
+	r.X *= float32(resolution.Width)
+	r.Y *= float32(resolution.Height)
+	r.Width *= float32(resolution.Width)
+	r.Height *= float32(resolution.Height)
+	return r
+}

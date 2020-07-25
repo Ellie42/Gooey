@@ -16,7 +16,7 @@ type EventManager struct {
 }
 
 type EventAreaContext interface {
-	GetTotalArea() dimension.SizeFloat32
+	GetTotalArea() dimension.DimensionsFloat32
 }
 
 type MouseRectClickHandler interface {

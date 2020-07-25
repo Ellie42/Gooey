@@ -60,8 +60,8 @@ func (w *Window) Init() {
 	w.Initialised = true
 }
 
-func (w *Window) GetTotalArea() dimension.SizeFloat32 {
-	return dimension.SizeFloat32{
+func (w *Window) GetTotalArea() dimension.DimensionsFloat32 {
+	return dimension.DimensionsFloat32{
 		float32(w.Context.Resolution.Width),
 		float32(w.Context.Resolution.Height),
 	}

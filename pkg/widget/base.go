@@ -30,11 +30,28 @@ func (b *BaseWidget) GetRectAbsolute() dimension.Rect {
 		}
 	}
 
+	var parentRect dimension.Rect
+
+	if b.Parent != nil {
+		parentRect = b.Parent.GetChildRectAbsolute(b.Index)
+	}
+
+	if b.Padding != nil {
+		rect = rect.WithPadding(*b.Padding)
+	}
+
+	bindRectDimensionToSize(&rect, b.DimensionBounds, parentRect, Width)
+	bindRectDimensionToSize(&rect, b.DimensionBounds, parentRect, Height)
+
 	switch b.FixedRatioAxis {
 	case settings.FixedX:
-		rect.Width = rect.Height * b.FixedRatio * (float32(Context.Resolution.Height) / float32(Context.Resolution.Width))
+		rect.Width = rect.Height * b.FixedRatio *
+			(float32(Context.Resolution.Height) / float32(Context.Resolution.Width)) *
+			parentRect.GetRatioX()
 	case settings.FixedY:
-		rect.Height = rect.Width * b.FixedRatio * (float32(Context.Resolution.Width) / float32(Context.Resolution.Height))
+		rect.Height = rect.Width * b.FixedRatio *
+			(float32(Context.Resolution.Width) / float32(Context.Resolution.Height)) *
+			parentRect.GetRatioY()
 	}
 
 	switch b.AlignmentVertical {
@@ -55,15 +72,65 @@ func (b *BaseWidget) GetRectAbsolute() dimension.Rect {
 		rect.X = 1 - rect.Width
 	}
 
-	if b.Padding != nil {
-		rect = rect.WithPadding(*b.Padding)
-	}
-
 	if b.Parent != nil {
-		rect = rect.RelativeTo(b.Parent.GetChildRectAbsolute(b.Index))
+		rect = rect.RelativeTo(parentRect)
 	}
 
 	return rect
+}
+
+type Dimension int
+
+const (
+	Width Dimension = iota
+	Height
+)
+
+func bindRectDimensionToSize(rect *dimension.Rect, bounds *dimension.Dimensions, parentRect dimension.Rect, dim Dimension) {
+	var pixelDimensionValue, parentRectDimensionValue float32
+	var windowResolutionDimensionValue int
+	var size *dimension.Size
+	var value *float32
+
+	if bounds == nil {
+		return
+	}
+
+	if rect == nil {
+		panic("bind rect dimension failed, rect cannot be nil")
+	}
+
+	pixelPos := rect.RelativeTo(parentRect).MultipliedByDimension(Context.Resolution)
+
+	switch dim {
+	case Width:
+		pixelDimensionValue = pixelPos.Width
+		parentRectDimensionValue = parentRect.Width
+		windowResolutionDimensionValue = Context.Resolution.Width
+		size = bounds.Width
+		value = &rect.Width
+	case Height:
+		pixelDimensionValue = pixelPos.Height
+		parentRectDimensionValue = parentRect.Height
+		windowResolutionDimensionValue = Context.Resolution.Height
+		size = bounds.Height
+		value = &rect.Height
+	}
+
+	if size == nil {
+		return
+	}
+
+	switch size.Unit {
+	case dimension.SizeUnitPixels:
+		if pixelDimensionValue > size.Amount {
+			*value = size.Amount / float32(windowResolutionDimensionValue) / parentRectDimensionValue
+		}
+	case dimension.SizeUnitRatio:
+		if *value > size.Amount {
+			*value = size.Amount
+		}
+	}
 }
 
 func (b *BaseWidget) GetChildRectAbsolute(index int) dimension.Rect {
@@ -110,6 +177,7 @@ func (b *BaseWidget) ApplyPreferences(p *settings.WidgetPreferences) {
 	b.FixedRatioAxis = p.FixedRatioAxis
 	b.AlignmentHorizontal = p.AlignmentHorizontal
 	b.AlignmentVertical = p.AlignmentVertical
+	b.DimensionBounds = p.DimensionBounds
 }
 
 func (b *BaseWidget) Render() {

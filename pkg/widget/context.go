@@ -8,7 +8,7 @@ import (
 )
 
 type WindowContext struct {
-	Resolution   dimension.SizeInt
+	Resolution   dimension.DimensionsInt
 	Rect         dimension.Rect
 	Input        input.Input
 	EventManager eventmanager.EventManager
