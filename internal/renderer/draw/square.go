@@ -1,8 +1,16 @@
 package draw
 
-import "git.agehadev.com/elliebelly/gooey/lib/dimension"
+import (
+	"git.agehadev.com/elliebelly/gooey/lib/dimension"
+)
 
-func Square(rect dimension.Rect) {
+func SquareEdge(rect dimension.Rect, colour RGBA) {
+	colours := make([]RGBA, 8)
+
+	for i := 0; i < 8; i++ {
+		colours[i] = colour
+	}
+
 	Line(preparePositionsForGL([]dimension.Vector2{
 		{rect.X, rect.Y},
 		{rect.X, rect.Y + rect.Height},
@@ -12,7 +20,7 @@ func Square(rect dimension.Rect) {
 		{rect.X + rect.Width, rect.Y},
 		{rect.X + rect.Width, rect.Y},
 		{rect.X, rect.Y},
-	}))
+	}), colours)
 }
 
 func preparePositionsForGL(vector2s []dimension.Vector2) []dimension.Vector2 {

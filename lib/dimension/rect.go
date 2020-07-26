@@ -73,3 +73,17 @@ func (r Rect) MultipliedByDimension(resolution DimensionsInt) Rect {
 	r.Height *= float32(resolution.Height)
 	return r
 }
+
+func (r Rect) Scale(amount float32) Rect {
+	r.Width *= amount
+	r.Height *= amount
+	return r
+}
+
+func (r Rect) Shrink(amount float32) Rect {
+	r.X += amount/2
+	r.Y += amount/2
+	r.Width -= amount
+	r.Height -= amount
+	return r
+}

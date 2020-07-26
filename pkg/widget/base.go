@@ -4,14 +4,16 @@ import (
 	"git.agehadev.com/elliebelly/gooey/internal/renderer/draw"
 	"git.agehadev.com/elliebelly/gooey/lib/dimension"
 	"git.agehadev.com/elliebelly/gooey/pkg/widget/settings"
+	"math/rand"
 )
 
 type BaseWidget struct {
 	settings.WidgetPreferences
 
-	Parent   Widget
-	Index    int
-	Children []Widget
+	Parent      Widget
+	Index       int
+	Children    []Widget
+	debugColour *draw.RGBA
 }
 
 func (b *BaseWidget) GetRectAbsolute() dimension.Rect {
@@ -34,10 +36,6 @@ func (b *BaseWidget) GetRectAbsolute() dimension.Rect {
 
 	if b.Parent != nil {
 		parentRect = b.Parent.GetChildRectAbsolute(b.Index)
-	}
-
-	if b.Padding != nil {
-		rect = rect.WithPadding(*b.Padding)
 	}
 
 	bindRectDimensionToSize(&rect, b.DimensionBounds, parentRect, Width)
@@ -70,6 +68,10 @@ func (b *BaseWidget) GetRectAbsolute() dimension.Rect {
 		rect.X = 0
 	case settings.HorizontalRight:
 		rect.X = 1 - rect.Width
+	}
+
+	if b.Padding != nil {
+		rect = rect.WithPadding(*b.Padding)
 	}
 
 	if b.Parent != nil {
@@ -117,7 +119,7 @@ func bindRectDimensionToSize(rect *dimension.Rect, bounds *dimension.Dimensions,
 		value = &rect.Height
 	}
 
-	if size == nil {
+	if size == nil || value == nil {
 		return
 	}
 
@@ -195,12 +197,25 @@ func (b *BaseWidget) RenderChildren() {
 	}
 }
 
+func (b *BaseWidget) GetIndex() int {
+	return b.Index
+}
+
 func (b *BaseWidget) AddChild(widget ...Widget) {
 	b.Children = append(b.Children, widget...)
 }
 
 func (b *BaseWidget) ShowBaseDebug() {
+	if b.debugColour == nil {
+		b.debugColour = &draw.RGBA{
+			R: rand.Float32(),
+			G: rand.Float32(),
+			B: rand.Float32(),
+			A: 1,
+		}
+	}
+
 	if Context.ShowDebug {
-		draw.Square(b.GetRectAbsolute())
+		draw.SquareEdge(b.GetRectAbsolute().Shrink(0.01), *b.debugColour)
 	}
 }

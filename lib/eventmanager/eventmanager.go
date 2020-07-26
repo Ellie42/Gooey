@@ -54,7 +54,7 @@ func (e *EventManager) HandleClickCollisions() {
 		for _, rect := range rects {
 			boundingBox := rect.MultipliedBy(screenRect).ToBoundingBox()
 
-			draw.Square(boundingBox.ToRect())
+			draw.SquareEdge(boundingBox.ToRect().Shrink(0.1), draw.Red)
 
 			if boundingBox.Contains(float32(mouseX), float32(mouseY)) {
 				lowestZIndex = zIndex

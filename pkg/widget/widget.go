@@ -4,6 +4,7 @@ import "git.agehadev.com/elliebelly/gooey/lib/dimension"
 
 type Widget interface {
 	SetIndex(index int)
+	GetIndex() int
 	SetParent(parent Widget)
 	Init()
 	AddChild(widget ...Widget)

@@ -7,20 +7,45 @@ import (
 
 type LinearLayout struct {
 	BaseWidget
-	Initialised bool
+	Initialised   bool
+	FitToChildren bool
+	stepOffset    float32
 }
 
 func (l *LinearLayout) GetChildRectAbsolute(index int) dimension.Rect {
 	step := float32(1) / float32(len(l.Children))
 
 	childRect := dimension.Rect{
-		X:      float32(index) * step,
+		X:      float32(index)*step + l.stepOffset,
 		Y:      0,
 		Width:  step,
 		Height: 1,
 	}.RelativeTo(l.GetRectAbsolute())
 
 	return childRect
+}
+
+func (l *LinearLayout) Render() {
+	parentRect := l.GetRectAbsolute()
+
+	if l.Children == nil {
+		return
+	}
+
+	for _, child := range l.Children {
+		//rect := l.GetChildRectAbsolute(child.GetIndex())
+		child.Render()
+
+		if l.FitToChildren {
+			childRelativeRect := child.GetRectAbsolute().RelativeTo(parentRect)
+
+			l.stepOffset -= 1 - childRelativeRect.Width
+		}
+	}
+
+	l.stepOffset = 0
+
+	l.ShowBaseDebug()
 }
 
 func (l *LinearLayout) Init() {
@@ -45,6 +70,8 @@ func NewLinearLayout(pref *settings.WidgetPreferences, widget ...Widget) *Linear
 		Width:  1,
 		Height: 1,
 	}
+
+	ll.FitToChildren = true
 
 	ll.AddChild(widget...)
 	ll.ApplyPreferences(pref)

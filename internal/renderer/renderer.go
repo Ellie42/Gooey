@@ -10,20 +10,28 @@ const (
 	vertexShaderSource = `
     #version 460
 
-    in vec3 vp;
+    in vec3 vpos;
+	//in vec4 vcolour;
+	layout(location = 1) in vec4 vcolour;
+
+	out vec4 _vcolour;
 
     void main() {
-        gl_Position = vec4(vp, 1.0);
+        gl_Position = vec4(vpos, 1.0);
+		_vcolour = vcolour;
     }
 ` + "\x00"
 
 	fragmentShaderSource = `
 	#version 460
 
+	in vec4 _vcolour;
+
 	out vec4 outputColor;
 
 	void main() {
-		outputColor = vec4(0.1,1,0.2,1);
+		//outputColor = vec4(0.1,1,0.2,1);
+		outputColor = _vcolour;
 	}
 ` + "\x00"
 )
