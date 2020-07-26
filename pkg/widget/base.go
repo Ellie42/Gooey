@@ -1,34 +1,37 @@
 package widget
 
 import (
-	"git.agehadev.com/elliebelly/gooey/internal/renderer/draw"
 	"git.agehadev.com/elliebelly/gooey/lib/dimension"
+	"git.agehadev.com/elliebelly/gooey/lib/renderer/draw"
 	"git.agehadev.com/elliebelly/gooey/pkg/widget/settings"
+	"git.agehadev.com/elliebelly/gooey/pkg/widget/styles"
 	"math/rand"
 )
 
 type BaseWidget struct {
-	settings.WidgetPreferences
+	Prefs settings.WidgetPreferences
+	styles.Styles
 
 	Parent      Widget
 	Index       int
 	Children    []Widget
 	debugColour *draw.RGBA
+	Rect        dimension.Rect
 }
 
 func (b *BaseWidget) GetRectAbsolute() dimension.Rect {
 	var rect dimension.Rect
 
-	if b.Rect == nil {
+	if b.Prefs.Rect == nil {
 		rect = dimension.Rect{
 			0, 0, 1, 1,
 		}
 	} else {
 		rect = dimension.Rect{
-			X:      b.Rect.X,
-			Y:      b.Rect.Y,
-			Width:  b.Rect.Width,
-			Height: b.Rect.Height,
+			X:      b.Prefs.Rect.X,
+			Y:      b.Prefs.Rect.Y,
+			Width:  b.Prefs.Rect.Width,
+			Height: b.Prefs.Rect.Height,
 		}
 	}
 
@@ -38,21 +41,21 @@ func (b *BaseWidget) GetRectAbsolute() dimension.Rect {
 		parentRect = b.Parent.GetChildRectAbsolute(b.Index)
 	}
 
-	bindRectDimensionToSize(&rect, b.DimensionBounds, parentRect, Width)
-	bindRectDimensionToSize(&rect, b.DimensionBounds, parentRect, Height)
+	bindRectDimensionToSize(&rect, b.Prefs.DimensionBounds, parentRect, Width)
+	bindRectDimensionToSize(&rect, b.Prefs.DimensionBounds, parentRect, Height)
 
-	switch b.FixedRatioAxis {
+	switch b.Prefs.FixedRatioAxis {
 	case settings.FixedX:
-		rect.Width = rect.Height * b.FixedRatio *
+		rect.Width = rect.Height * b.Prefs.FixedRatio *
 			(float32(Context.Resolution.Height) / float32(Context.Resolution.Width)) *
 			parentRect.GetRatioX()
 	case settings.FixedY:
-		rect.Height = rect.Width * b.FixedRatio *
+		rect.Height = rect.Width * b.Prefs.FixedRatio *
 			(float32(Context.Resolution.Width) / float32(Context.Resolution.Height)) *
 			parentRect.GetRatioY()
 	}
 
-	switch b.AlignmentVertical {
+	switch b.Prefs.AlignmentVertical {
 	case settings.VerticalMiddle:
 		rect.Y = (1 - rect.Height) / 2
 	case settings.VerticalTop:
@@ -61,17 +64,13 @@ func (b *BaseWidget) GetRectAbsolute() dimension.Rect {
 		rect.Y = 0
 	}
 
-	switch b.AlignmentHorizontal {
+	switch b.Prefs.AlignmentHorizontal {
 	case settings.HorizontalMiddle:
 		rect.X = (1 - rect.Width) / 2
 	case settings.HorizontalLeft:
 		rect.X = 0
 	case settings.HorizontalRight:
 		rect.X = 1 - rect.Width
-	}
-
-	if b.Padding != nil {
-		rect = rect.WithPadding(*b.Padding)
 	}
 
 	if b.Parent != nil {
@@ -136,7 +135,13 @@ func bindRectDimensionToSize(rect *dimension.Rect, bounds *dimension.Dimensions,
 }
 
 func (b *BaseWidget) GetChildRectAbsolute(index int) dimension.Rect {
-	return b.GetRectAbsolute()
+	rect :=  b.GetRectAbsolute()
+
+	if b.Prefs.Padding != nil {
+		rect = rect.WithPadding(*b.Prefs.Padding)
+	}
+
+	return rect
 }
 
 func (b *BaseWidget) SetIndex(index int) {
@@ -163,26 +168,20 @@ func (b *BaseWidget) InitChildren(parent Widget) {
 }
 
 func (b *BaseWidget) ApplyPreferences(p *settings.WidgetPreferences) {
-	if p == nil {
-		return
-	}
+	if p != nil {
+		b.Prefs = *p
 
-	if p.Rect != nil {
-		b.Rect = p.Rect
+		if p.Rect != nil {
+			b.Rect = *p.Rect
+		}
 	}
-
-	if p.Padding != nil {
-		b.Padding = p.Padding
-	}
-
-	b.FixedRatio = p.FixedRatio
-	b.FixedRatioAxis = p.FixedRatioAxis
-	b.AlignmentHorizontal = p.AlignmentHorizontal
-	b.AlignmentVertical = p.AlignmentVertical
-	b.DimensionBounds = p.DimensionBounds
 }
 
 func (b *BaseWidget) Render() {
+	b.RenderStyles(
+		b.GetRectAbsolute(),
+		b.Prefs.StyleSettings,
+	)
 	b.RenderChildren()
 	b.ShowBaseDebug()
 }

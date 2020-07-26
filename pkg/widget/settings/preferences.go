@@ -1,6 +1,9 @@
 package settings
 
-import "git.agehadev.com/elliebelly/gooey/lib/dimension"
+import (
+	"git.agehadev.com/elliebelly/gooey/lib/dimension"
+	"git.agehadev.com/elliebelly/gooey/pkg/widget/styles"
+)
 
 type FixedAspectAxis int
 
@@ -32,6 +35,7 @@ type WidgetPreferences struct {
 	Rect            *dimension.Rect
 	Padding         *dimension.DirectionalRect
 	DimensionBounds *dimension.Dimensions
+	StyleSettings   *styles.StyleSettings
 
 	FixedRatioAxis FixedAspectAxis
 	FixedRatio     float32

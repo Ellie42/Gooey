@@ -16,30 +16,44 @@ func (l *LinearLayout) GetChildRectAbsolute(index int) dimension.Rect {
 	step := float32(1) / float32(len(l.Children))
 
 	childRect := dimension.Rect{
-		X:      float32(index)*step + l.stepOffset,
-		Y:      0,
-		Width:  step,
+		X: float32(index)*step + l.stepOffset,
+		Y: 0,
+		//TODO fix this when using > 2 children, it will surely overshoot
+		Width:  step - l.stepOffset,
 		Height: 1,
 	}.RelativeTo(l.GetRectAbsolute())
+
+	if l.Prefs.Padding != nil {
+		childPadding := *l.Prefs.Padding
+
+		if index > 0 {
+			childPadding.Left = 0
+		}
+
+		childRect = childRect.WithPadding(childPadding)
+	}
 
 	return childRect
 }
 
 func (l *LinearLayout) Render() {
-	parentRect := l.GetRectAbsolute()
+	l.RenderStyles(l.GetRectAbsolute(), l.Prefs.StyleSettings)
 
 	if l.Children == nil {
 		return
 	}
 
-	for _, child := range l.Children {
-		//rect := l.GetChildRectAbsolute(child.GetIndex())
+	for i, child := range l.Children {
 		child.Render()
 
-		if l.FitToChildren {
-			childRelativeRect := child.GetRectAbsolute().RelativeTo(parentRect)
+		rect := l.GetChildRectAbsolute(i)
 
-			l.stepOffset -= 1 - childRelativeRect.Width
+		if l.FitToChildren {
+			childAbsRect := child.GetRectAbsolute()
+
+			if childAbsRect.Width < rect.Width {
+				l.stepOffset -= (rect.Width - childAbsRect.Width)
+			}
 		}
 	}
 
@@ -64,7 +78,7 @@ func (ll *LinearLayout) AddChild(widget ...Widget) {
 func NewLinearLayout(pref *settings.WidgetPreferences, widget ...Widget) *LinearLayout {
 	ll := &LinearLayout{}
 
-	ll.Rect = &dimension.Rect{
+	ll.Prefs.Rect = &dimension.Rect{
 		X:      0,
 		Y:      0,
 		Width:  1,
@@ -79,6 +93,3 @@ func NewLinearLayout(pref *settings.WidgetPreferences, widget ...Widget) *Linear
 	return ll
 }
 
-func addChildren(widget []Widget, ll *LinearLayout) {
-
-}

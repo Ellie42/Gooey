@@ -2,8 +2,8 @@ package eventmanager
 
 import (
 	"fmt"
-	"git.agehadev.com/elliebelly/gooey/internal/renderer/draw"
 	"git.agehadev.com/elliebelly/gooey/lib/dimension"
+	"git.agehadev.com/elliebelly/gooey/lib/renderer/draw"
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"math"
 )

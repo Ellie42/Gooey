@@ -12,7 +12,7 @@ type FreeLayout struct {
 func NewFreeLayout(pref *settings.WidgetPreferences, widget ...Widget) *FreeLayout {
 	ll := &FreeLayout{}
 
-	ll.Rect = &dimension.Rect{
+	ll.Prefs.Rect = &dimension.Rect{
 		X:      0,
 		Y:      0,
 		Width:  1,

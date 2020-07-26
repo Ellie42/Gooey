@@ -36,8 +36,8 @@ func (r Rect) RelativeTo(parent Rect) Rect {
 func (r Rect) WithPadding(padding DirectionalRect) Rect {
 	r.X += padding.Left * r.Width
 	r.Y += padding.Bottom * r.Height
-	r.Width -= padding.Right + padding.Left*r.Width
-	r.Height -= padding.Top + padding.Bottom*r.Height
+	r.Width -= (padding.Right + padding.Left)*r.Width
+	r.Height -= (padding.Top + padding.Bottom)*r.Height
 	return r
 }
 

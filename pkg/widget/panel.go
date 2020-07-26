@@ -25,6 +25,10 @@ func (p *PanelWidget) Render() {
 		p.Rect.Y += dragDist.Y * (1 / absRect.Height)
 	}
 
+	p.RenderStyles(
+		p.GetRectAbsolute(),
+		p.Prefs.StyleSettings,
+	)
 	p.RenderChildren()
 	p.ShowBaseDebug()
 }
@@ -34,7 +38,7 @@ func NewPanel(pref *settings.WidgetPreferences, widget ...Widget) *PanelWidget {
 
 	pw.draggable.DragRect(pw.GetRectAbsolute)
 
-	pw.Rect = &dimension.Rect{
+	pw.Rect = dimension.Rect{
 		X:      0,
 		Y:      0,
 		Width:  1,

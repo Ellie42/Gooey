@@ -1,7 +1,7 @@
 package gooey
 
 import (
-	"git.agehadev.com/elliebelly/gooey/internal/renderer"
+	"git.agehadev.com/elliebelly/gooey/lib/renderer"
 	"git.agehadev.com/elliebelly/gooey/pkg/widget"
 	"log"
 	"os"

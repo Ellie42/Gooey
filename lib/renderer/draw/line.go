@@ -9,18 +9,22 @@ var lineVAO uint32
 var lineVBO uint32
 var lineColourVBO uint32
 
-var pointsBuffer []dimension.Vector2
+var pointsBuffer []dimension.Vector3
 var coloursBuffer []RGBA
 
-func Line(linePoints []dimension.Vector2, colours []RGBA) {
-	if lineVBO == 0 {
-		pointsBuffer = make([]dimension.Vector2, 256)
-		coloursBuffer = make([]RGBA, 256)
-		genLineVBO()
-	}
-
+func Line(linePoints []dimension.Vector3, colours []RGBA) {
 	if lineVAO == 0 {
-		genLineVAO()
+		pointsBuffer = make([]dimension.Vector3, 256)
+		coloursBuffer = make([]RGBA, 256)
+
+		lineVAO = genVAO(1)[0]
+		gl.BindVertexArray(lineVAO)
+
+		vbos := genVBO(2)
+
+		lineVBO, lineColourVBO = vbos[0], vbos[1]
+
+		configureVBOs()
 	}
 
 	copy(pointsBuffer[0:], linePoints)
@@ -38,37 +42,19 @@ func Line(linePoints []dimension.Vector2, colours []RGBA) {
 	gl.BindBuffer(gl.ARRAY_BUFFER, lineVBO)
 	gl.BufferData(gl.ARRAY_BUFFER,
 		4* // Float32 bytes
-			2* // Number of Float32s per Vector2
+			3* // Number of Float32s per Vector3
 			len(pointsBuffer),
 		gl.Ptr(pointsBuffer), gl.STATIC_DRAW)
 
-	gl.DrawArrays(gl.LINES, 0, int32(len(linePoints)*2))
+	gl.DrawArrays(gl.LINES, 0, int32(len(linePoints)))
 }
 
-func genLineVAO() {
-	var vao uint32
-	gl.GenVertexArrays(1, &vao)
-	gl.BindVertexArray(vao)
-
+func configureVBOs() {
 	gl.EnableVertexAttribArray(0)
 	gl.BindBuffer(gl.ARRAY_BUFFER, lineVBO)
-	gl.VertexAttribPointer(0, 2, gl.FLOAT, false, 0, nil)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, nil)
 
 	gl.EnableVertexAttribArray(1)
 	gl.BindBuffer(gl.ARRAY_BUFFER, lineColourVBO)
 	gl.VertexAttribPointer(1, 4, gl.FLOAT, false, 0, nil)
-
-	lineVAO = vao
-}
-
-func genLineVBO() {
-	var vbo uint32
-	gl.GenBuffers(1, &vbo)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	lineVBO = vbo
-
-	var vbo2 uint32
-	gl.GenBuffers(1, &vbo2)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo2)
-	lineColourVBO = vbo2
 }

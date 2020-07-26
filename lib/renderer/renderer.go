@@ -11,14 +11,16 @@ const (
     #version 460
 
     in vec3 vpos;
-	//in vec4 vcolour;
-	layout(location = 1) in vec4 vcolour;
+	in vec4 vcolour;
+	in vec2 uv;
 
 	out vec4 _vcolour;
+	out vec2 _uv;
 
     void main() {
         gl_Position = vec4(vpos, 1.0);
 		_vcolour = vcolour;
+		_uv = _uv;
     }
 ` + "\x00"
 
@@ -26,6 +28,7 @@ const (
 	#version 460
 
 	in vec4 _vcolour;
+	in vec2 _uv;
 
 	out vec4 outputColor;
 
