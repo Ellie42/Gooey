@@ -1,6 +1,6 @@
 package styles
 
-import "git.agehadev.com/elliebelly/gooey/lib/renderer/draw"
+import "git.agehadev.com/elliebelly/gooey/pkg/draw"
 
 type StyleSettings struct {
 	BackgroundColour *draw.RGBA

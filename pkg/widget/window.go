@@ -2,6 +2,7 @@ package widget
 
 import (
 	"git.agehadev.com/elliebelly/gooey/lib/dimension"
+	"git.agehadev.com/elliebelly/gooey/pkg/draw"
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
@@ -48,6 +49,7 @@ func (w *Window) onWindowSetSize(glfwWindow *glfw.Window, width int, height int)
 
 func (w *Window) MakeCurrent() {
 	Context = &w.Context
+	draw.CurrentResolution = Context.Resolution
 	w.glfwWindow.MakeContextCurrent()
 }
 

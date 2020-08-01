@@ -1,0 +1,22 @@
+//------------------------------------------------
+//--- 010 Editor v10.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct BFF {
+    uint16 MagicNumber;
+    uint32 Width;
+    uint32 Height;
+    uint32 CellWidth;
+    uint32 CellHeight;
+    byte BPP;
+    byte Offset;
+    byte Widths[256];
+} bff;

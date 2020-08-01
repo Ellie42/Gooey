@@ -1,0 +1,146 @@
+package draw
+
+import (
+	"git.agehadev.com/elliebelly/gooey/fonts"
+	"git.agehadev.com/elliebelly/gooey/lib/dimension"
+	"git.agehadev.com/elliebelly/gooey/pkg/draw/font"
+	"github.com/go-gl/gl/v4.6-core/gl"
+)
+
+var currentFont *font.Font
+var textVAO uint32
+var textVertVBO uint32
+var textVertColourVBO uint32
+var textUVVBO uint32
+var fontTexture uint32
+
+var textVertBuffer = make([]dimension.Vector3, 2048)
+var textColourBuffer = make([]RGBA, 2048)
+var textUVBuffer = make([]dimension.Vector2, 2048)
+
+func Text(rect dimension.Rect, str string, sizePixels int) {
+	SwitchProgram(programs[1])
+	//SwitchBlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+	SwitchBlendFunc(gl.SRC_ALPHA, gl.ONE)
+
+	if currentFont == nil {
+		currentFont = font.LoadFromHexString(fonts.SourceSansPro)
+	}
+
+	if textVAO == 0 {
+		textVAO = genVAO(1)[0]
+		gl.BindVertexArray(textVAO)
+
+		vbos := genVBO(3)
+		textVertVBO, textVertColourVBO, textUVVBO = vbos[0], vbos[1], vbos[2]
+
+		gl.EnableVertexAttribArray(0)
+		gl.BindBuffer(gl.ARRAY_BUFFER, textVertVBO)
+		gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, nil)
+
+		gl.EnableVertexAttribArray(1)
+		gl.BindBuffer(gl.ARRAY_BUFFER, textVertColourVBO)
+		gl.VertexAttribPointer(1, 4, gl.FLOAT, false, 0, nil)
+
+		gl.EnableVertexAttribArray(2)
+		gl.BindBuffer(gl.ARRAY_BUFFER, textUVVBO)
+		gl.VertexAttribPointer(2, 2, gl.FLOAT, false, 0, nil)
+
+		gl.GenTextures(1, &fontTexture)
+		gl.ActiveTexture(gl.TEXTURE0)
+		gl.BindTexture(gl.TEXTURE_2D, fontTexture)
+
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_BASE_LEVEL, 0)
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LEVEL, 0)
+		gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+		gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+		gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.NEAREST)
+		gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.NEAREST)
+
+		//testTexture := make([]RGBA, 64*64)
+		//
+		//for i := 0; i < len(testTexture); i++ {
+		//	testTexture[i] = RGBA{1, 1, 1, 1}
+		//}
+
+		gl.TexImage2D(
+			gl.TEXTURE_2D,
+			0,
+			gl.RGBA,
+			//64,64,
+			int32(currentFont.BFF.ImageWidth),
+			int32(currentFont.BFF.ImageHeight),
+			0,
+			gl.RGBA,
+			gl.UNSIGNED_BYTE,
+			//gl.Ptr(testTexture),
+			gl.Ptr(currentFont.Data),
+		)
+
+		//gl.GenerateMipmap(gl.TEXTURE_2D)
+	}
+
+	//rect = dimension.Rect{
+	//	0, 0, 1, 1,
+	//}
+
+	resRatioX := float32(CurrentResolution.Width) / float32(CurrentResolution.Height)
+	charHeight := currentFont.BFF.CellHeight
+	cumStartPosX := rect.X + float32(0)
+
+	desiredPixelHeight := float32(sizePixels)
+	scaledCharHeight := 1 / float32(CurrentResolution.Height) * desiredPixelHeight
+
+	for i, c := range str {
+		charWidth := currentFont.BFF.CharacterWidths[c]
+
+		charHeightRelative := float32(1) * scaledCharHeight
+		charWidthRelative := (float32(charWidth) / float32(charHeight)) * charHeightRelative / resRatioX
+
+		copy(textVertBuffer[i*6:], preparePositionsForGL([]dimension.Vector3{
+			{cumStartPosX, rect.Y + charHeightRelative, 1},
+			{cumStartPosX, rect.Y, 1},
+			{cumStartPosX + charWidthRelative, rect.Y, 1},
+
+			{cumStartPosX, rect.Y + charHeightRelative, 1},
+			{cumStartPosX + charWidthRelative, rect.Y, 1},
+			{cumStartPosX + charWidthRelative, rect.Y + charHeightRelative, 1},
+		}))
+
+		uvs := currentFont.GetCharacterUV(uint8(c))
+
+		copy(textUVBuffer[i*6:], []dimension.Vector2{
+			{uvs.MinX, uvs.MinY},
+			{uvs.MinX, uvs.MaxY},
+			{uvs.MaxX, uvs.MaxY},
+
+			{uvs.MinX, uvs.MinY},
+			{uvs.MaxX, uvs.MaxY},
+			{uvs.MaxX, uvs.MinY},
+		})
+
+		for j := i; j < 6; j++ {
+			textColourBuffer[j] = White
+		}
+
+		cumStartPosX += charWidthRelative
+	}
+
+	gl.BindVertexArray(textVAO)
+
+	gl.BindBuffer(gl.ARRAY_BUFFER, textVertVBO)
+	gl.BufferData(gl.ARRAY_BUFFER, 4*3*len(textVertBuffer), gl.Ptr(textVertBuffer), gl.STATIC_DRAW)
+
+	gl.BindBuffer(gl.ARRAY_BUFFER, textVertColourVBO)
+	gl.BufferData(gl.ARRAY_BUFFER, 4*4*len(textColourBuffer), gl.Ptr(textColourBuffer), gl.STATIC_DRAW)
+
+	gl.BindBuffer(gl.ARRAY_BUFFER, textUVVBO)
+	gl.BufferData(gl.ARRAY_BUFFER, 4*2*len(textUVBuffer), gl.Ptr(textUVBuffer), gl.STATIC_DRAW)
+
+	gl.ActiveTexture(gl.TEXTURE0)
+	gl.BindTexture(gl.TEXTURE_2D, fontTexture)
+
+	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(textVertBuffer)/3))
+
+	RestoreGLOptions()
+}

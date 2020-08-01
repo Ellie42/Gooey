@@ -1,7 +1,7 @@
 package gooey
 
 import (
-	"git.agehadev.com/elliebelly/gooey/lib/renderer"
+	"git.agehadev.com/elliebelly/gooey/pkg/draw"
 	"git.agehadev.com/elliebelly/gooey/pkg/widget"
 	"log"
 	"os"
@@ -9,11 +9,11 @@ import (
 	"runtime/pprof"
 )
 
-var Renderer *renderer.Renderer
+var Renderer *draw.Renderer
 
 type Gooey struct {
 	Window   *widget.WindowManager
-	Renderer *renderer.Renderer
+	Renderer *draw.Renderer
 	Stop     bool
 }
 
@@ -71,7 +71,7 @@ func (g *Gooey) cleanup() {
 }
 
 func Init() (gooey *Gooey, err error) {
-	Renderer = renderer.NewRenderer()
+	Renderer = draw.NewRenderer()
 	gooey = &Gooey{
 		Window:   widget.NewWindowManager(),
 		Renderer: Renderer,

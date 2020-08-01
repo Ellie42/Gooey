@@ -29,6 +29,7 @@ var squareVertVBO uint32
 var squareUVVBO uint32
 var squareVertColourVBO uint32
 var squareVAO uint32
+var squareTexture uint32
 var squareVertBuffer = make([]dimension.Vector3, 6)
 var squareUVBuffer = make([]dimension.Vector2, 6)
 
@@ -57,6 +58,9 @@ func SquareFilled(rect dimension.Rect, colour RGBA) {
 		gl.EnableVertexAttribArray(2)
 		gl.BindBuffer(gl.ARRAY_BUFFER, squareUVVBO)
 		gl.VertexAttribPointer(2, 2, gl.FLOAT, false, 0, nil)
+
+		gl.GenTextures(1, &squareTexture)
+		gl.ActiveTexture(gl.TEXTURE0)
 	}
 
 	copy(squareVertBuffer, preparePositionsForGL([]dimension.Vector3{

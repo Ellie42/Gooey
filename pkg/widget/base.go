@@ -2,7 +2,7 @@ package widget
 
 import (
 	"git.agehadev.com/elliebelly/gooey/lib/dimension"
-	"git.agehadev.com/elliebelly/gooey/lib/renderer/draw"
+	"git.agehadev.com/elliebelly/gooey/pkg/draw"
 	"git.agehadev.com/elliebelly/gooey/pkg/widget/settings"
 	"git.agehadev.com/elliebelly/gooey/pkg/widget/styles"
 	"math/rand"
@@ -135,7 +135,7 @@ func bindRectDimensionToSize(rect *dimension.Rect, bounds *dimension.Dimensions,
 }
 
 func (b *BaseWidget) GetChildRectAbsolute(index int) dimension.Rect {
-	rect :=  b.GetRectAbsolute()
+	rect := b.GetRectAbsolute()
 
 	if b.Prefs.Padding != nil {
 		rect = rect.WithPadding(*b.Prefs.Padding)

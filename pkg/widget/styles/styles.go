@@ -2,7 +2,7 @@ package styles
 
 import (
 	"git.agehadev.com/elliebelly/gooey/lib/dimension"
-	"git.agehadev.com/elliebelly/gooey/lib/renderer/draw"
+	"git.agehadev.com/elliebelly/gooey/pkg/draw"
 )
 
 type Styles struct {
