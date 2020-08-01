@@ -15,7 +15,7 @@ func NewWindowManager() *WindowManager {
 	}
 }
 
-func (m *WindowManager) CreateWindow(preferences Preferences) (*Window, error) {
+func (m *WindowManager) CreateWindow(preferences WindowPreferences) (*Window, error) {
 	window := newWindow()
 
 	m.Windows = append(m.Windows, window)

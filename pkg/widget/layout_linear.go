@@ -71,6 +71,7 @@ func (l *LinearLayout) Init() {
 func (ll *LinearLayout) AddChild(widget ...Widget) {
 	for _, wid := range widget {
 		wid.SetIndex(len(ll.Children))
+		wid.SetParent(ll)
 		ll.Children = append(ll.Children, wid)
 	}
 }

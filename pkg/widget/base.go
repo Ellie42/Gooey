@@ -173,6 +173,8 @@ func (b *BaseWidget) ApplyPreferences(p *settings.WidgetPreferences) {
 
 		if p.Rect != nil {
 			b.Rect = *p.Rect
+		} else {
+			p.Rect = &dimension.Rect{0, 0, 1, 1}
 		}
 	}
 }
@@ -201,7 +203,10 @@ func (b *BaseWidget) GetIndex() int {
 }
 
 func (b *BaseWidget) AddChild(widget ...Widget) {
-	b.Children = append(b.Children, widget...)
+	for _, child := range widget {
+		child.SetIndex(len(b.Children))
+		b.Children = append(b.Children, child)
+	}
 }
 
 func (b *BaseWidget) ShowBaseDebug() {

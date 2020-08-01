@@ -20,7 +20,6 @@ var textUVBuffer = make([]dimension.Vector2, 2048)
 
 func Text(rect dimension.Rect, str string, sizePixels int) {
 	SwitchProgram(programs[1])
-	//SwitchBlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 	SwitchBlendFunc(gl.SRC_ALPHA, gl.ONE)
 
 	if currentFont == nil {
@@ -50,39 +49,25 @@ func Text(rect dimension.Rect, str string, sizePixels int) {
 		gl.ActiveTexture(gl.TEXTURE0)
 		gl.BindTexture(gl.TEXTURE_2D, fontTexture)
 
-		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_BASE_LEVEL, 0)
-		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LEVEL, 0)
-		gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-		gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-		gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.NEAREST)
-		gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.NEAREST)
-
-		//testTexture := make([]RGBA, 64*64)
-		//
-		//for i := 0; i < len(testTexture); i++ {
-		//	testTexture[i] = RGBA{1, 1, 1, 1}
-		//}
-
 		gl.TexImage2D(
 			gl.TEXTURE_2D,
 			0,
 			gl.RGBA,
-			//64,64,
 			int32(currentFont.BFF.ImageWidth),
 			int32(currentFont.BFF.ImageHeight),
 			0,
 			gl.RGBA,
 			gl.UNSIGNED_BYTE,
-			//gl.Ptr(testTexture),
 			gl.Ptr(currentFont.Data),
 		)
 
-		//gl.GenerateMipmap(gl.TEXTURE_2D)
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_BASE_LEVEL, 0)
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LEVEL, 0)
+		gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+		gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+		gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+		gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
 	}
-
-	//rect = dimension.Rect{
-	//	0, 0, 1, 1,
-	//}
 
 	resRatioX := float32(CurrentResolution.Width) / float32(CurrentResolution.Height)
 	charHeight := currentFont.BFF.CellHeight
@@ -119,7 +104,7 @@ func Text(rect dimension.Rect, str string, sizePixels int) {
 			{uvs.MaxX, uvs.MinY},
 		})
 
-		for j := i; j < 6; j++ {
+		for j := i * 6; j < i*6+6; j++ {
 			textColourBuffer[j] = White
 		}
 

@@ -2,7 +2,7 @@ package widget
 
 import "github.com/go-gl/glfw/v3.3/glfw"
 
-type Preferences struct {
+type WindowPreferences struct {
 	GLFWHints map[glfw.Hint]int
 	Width     int
 	Height    int
@@ -11,7 +11,7 @@ type Preferences struct {
 	OpenedCB func()
 }
 
-func (p *Preferences) FillDefaults() {
+func (p *WindowPreferences) FillDefaults() {
 	if p.Width == 0 {
 		p.Width = 384
 	}

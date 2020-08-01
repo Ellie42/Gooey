@@ -47,7 +47,7 @@ func (g *Gooey) Loop() {
 
 			w.MakeCurrent()
 
-			g.Renderer.Clear()
+			g.Renderer.Clear(widget.Context.Resolution)
 
 			w.Render()
 

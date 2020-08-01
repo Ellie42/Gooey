@@ -5,6 +5,7 @@ import (
 	"git.agehadev.com/elliebelly/gooey/lib/dimension"
 	"git.agehadev.com/elliebelly/gooey/lib/shader"
 	"github.com/go-gl/gl/v4.6-core/gl"
+	"github.com/go-gl/mathgl/mgl32"
 )
 
 var CurrentResolution dimension.DimensionsInt
@@ -12,6 +13,8 @@ var CurrentResolution dimension.DimensionsInt
 const (
 	colouredVertShader = `
     #version 460
+
+	uniform mat4 projection;
 
     in vec3 vpos;
 	in vec4 vcolour;
@@ -50,9 +53,11 @@ const (
 	out vec4 outputColor;
 
 	void main() {
+		//vec4 sampled = vec4(1.0, 1.0, 1.0, texture2D(tex, _uv).a);
+		outputColor = _vcolour * texture2D(tex, _uv);
 		//outputColor = _vcolour * texture(tex, _uv);
 		//outputColor = texture(tex, _uv);
-		outputColor = texture2D(tex, _uv);
+		//outputColor = texture2D(tex, _uv);
 	}
 ` + "\x00"
 )
@@ -80,10 +85,19 @@ func (r *Renderer) Init() {
 
 	blendOptions[gl.SRC_ALPHA] = gl.ONE_MINUS_SRC_ALPHA
 
+	gl.UseProgram(programs[0])
+
+	loc := gl.GetUniformLocation(programs[1], gl.Str("projection\x00"))
+	orthMatrix := mgl32.Ortho(0, 0.9, 0, 1, 0, 100)
+
+	if loc != -1 {
+		gl.UniformMatrix4fv(loc, 1, false, &orthMatrix[0])
+	}
+
 	RestoreGLOptions()
 }
 
-func (r *Renderer) Clear() {
+func (r *Renderer) Clear(res dimension.DimensionsInt) {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 	gl.UseProgram(programs[0])

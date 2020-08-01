@@ -110,6 +110,8 @@ func preparePositionsForGL(vectors []dimension.Vector3) []dimension.Vector3 {
 	for i, _ := range vectors {
 		vectors[i].X = vectors[i].X*2 - 1
 		vectors[i].Y = vectors[i].Y*2 - 1
+		//vectors[i].X = vectors[i].X
+		//vectors[i].Y = vectors[i].Y
 	}
 
 	return vectors

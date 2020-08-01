@@ -3,7 +3,6 @@ package widget
 import (
 	"git.agehadev.com/elliebelly/gooey/lib/dimension"
 	"git.agehadev.com/elliebelly/gooey/pkg/draw"
-	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
@@ -22,7 +21,7 @@ func (w *Window) GetChildRectAbsolute(index int) dimension.Rect {
 	return w.GetRectAbsolute()
 }
 
-func (w *Window) create(preferences Preferences) error {
+func (w *Window) create(preferences WindowPreferences) error {
 	for pref, value := range preferences.GLFWHints {
 		glfw.WindowHint(pref, value)
 	}
@@ -44,7 +43,7 @@ func (w *Window) create(preferences Preferences) error {
 func (w *Window) onWindowSetSize(glfwWindow *glfw.Window, width int, height int) {
 	w.Context.Resolution.Width = width
 	w.Context.Resolution.Height = height
-	gl.Viewport(0, 0, int32(width), int32(height))
+	//gl.Viewport(0, 0, int32(width), int32(height))
 }
 
 func (w *Window) MakeCurrent() {
