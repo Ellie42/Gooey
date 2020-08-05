@@ -15,10 +15,13 @@ type ListContentProvider interface {
 type List struct {
 	BaseWidget
 
-	ContentProvider ListContentProvider
+	Children []*WidgetListItem
+
+	ContentProvider ListContentWidgetConstructor
 
 	initialisedMap map[int]bool
 	lastMaxRows    int
+	Updater        ListContentWidgetUpdater
 }
 
 func (l *List) GetChildRectAbsolute(index int) dimension.Rect {
@@ -39,13 +42,21 @@ func (l *List) Init() {
 	l.InitChildren(l)
 }
 
+func NewListStringContentWidget(w *WidgetListItem) Widget {
+	t := NewTextWidget(nil)
+
+	t.Text = "I have nothing to say"
+
+	return t
+}
+
 func (l *List) Render() {
 	resolution := Context.Resolution
 	maxHeightPixels := 32
 	maxRows := float32(math.Ceil(float64(resolution.Height) / float64(maxHeightPixels)))
 
 	if int(maxRows) > len(l.Children) {
-		l.Children = append(l.Children, make([]Widget, int(maxRows)-len(l.Children))...)
+		l.Children = append(l.Children, make([]*WidgetListItem, int(maxRows)-len(l.Children))...)
 	}
 
 	for i := 0; i < int(maxRows); i++ {
@@ -59,7 +70,7 @@ func (l *List) Render() {
 		draw.SquareFilled(rowRect, colours[i%2])
 
 		if l.Children[i] == nil {
-			listItem := NewWidgetListItem(l.ContentProvider)
+			listItem := newWidgetListItem(l.ContentProvider, l.Updater)
 
 			listItem.SetParent(l)
 			listItem.SetIndex(i)
@@ -73,9 +84,10 @@ func (l *List) Render() {
 	}
 }
 
-func NewList(provider ListContentProvider, prefs *settings.WidgetPreferences) *List {
+func NewList(provider ListContentWidgetConstructor, updater ListContentWidgetUpdater, prefs *settings.WidgetPreferences) *List {
 	list := &List{
 		ContentProvider: provider,
+		Updater:         updater,
 		initialisedMap:  make(map[int]bool),
 	}
 

@@ -12,3 +12,4 @@ type Widget interface {
 	GetChildRectAbsolute(index int) dimension.Rect
 	Render()
 }
+

@@ -20,7 +20,7 @@ var textUVBuffer = make([]dimension.Vector2, 2048)
 
 func Text(rect dimension.Rect, str string, sizePixels int) {
 	SwitchProgram(programs[1])
-	SwitchBlendFunc(gl.SRC_ALPHA, gl.ONE)
+	SwitchBlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
 	if currentFont == nil {
 		currentFont = font.LoadFromHexString(fonts.SourceSansPro)
@@ -61,12 +61,12 @@ func Text(rect dimension.Rect, str string, sizePixels int) {
 			gl.Ptr(currentFont.Data),
 		)
 
-		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_BASE_LEVEL, 0)
-		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LEVEL, 0)
 		gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
 		gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
 		gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
 		gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+
+		gl.GenerateMipmap(gl.TEXTURE_2D)
 	}
 
 	resRatioX := float32(CurrentResolution.Width) / float32(CurrentResolution.Height)

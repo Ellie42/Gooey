@@ -138,7 +138,7 @@ func (b *BaseWidget) GetChildRectAbsolute(index int) dimension.Rect {
 	rect := b.GetRectAbsolute()
 
 	if b.Prefs.Padding != nil {
-		rect = rect.WithPadding(*b.Prefs.Padding)
+		rect = rect.WithPaddingAbsolute(b.Prefs.Padding.ToDirectionalRect(Context.Resolution))
 	}
 
 	return rect
@@ -162,7 +162,6 @@ func (b *BaseWidget) InitChildren(parent Widget) {
 	}
 
 	for _, child := range b.Children {
-		child.SetParent(parent)
 		child.Init()
 	}
 }
@@ -202,11 +201,16 @@ func (b *BaseWidget) GetIndex() int {
 	return b.Index
 }
 
-func (b *BaseWidget) AddChild(widget ...Widget) {
-	for _, child := range widget {
+func (b *BaseWidget) AddChildWithParent(parent Widget, children ...Widget) {
+	for _, child := range children {
 		child.SetIndex(len(b.Children))
+		child.SetParent(parent)
 		b.Children = append(b.Children, child)
 	}
+}
+
+func (b *BaseWidget) AddChild(widget ...Widget) {
+	b.AddChildWithParent(b, widget...)
 }
 
 func (b *BaseWidget) ShowBaseDebug() {
@@ -220,6 +224,6 @@ func (b *BaseWidget) ShowBaseDebug() {
 	}
 
 	if Context.ShowDebug {
-		draw.SquareEdge(b.GetRectAbsolute().Shrink(0.01), *b.debugColour)
+		draw.SquareEdge(b.GetRectAbsolute(), *b.debugColour)
 	}
 }

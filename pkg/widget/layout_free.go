@@ -19,7 +19,7 @@ func NewFreeLayout(pref *settings.WidgetPreferences, widget ...Widget) *FreeLayo
 		Height: 1,
 	}
 
-	ll.Children = widget
+	ll.AddChildWithParent(ll, widget...)
 
 	ll.ApplyPreferences(pref)
 

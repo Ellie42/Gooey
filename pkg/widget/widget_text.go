@@ -17,7 +17,7 @@ func (t *Text) Render() {
 
 func NewTextWidget(prefs *settings.WidgetPreferences) *Text {
 	t := &Text{
-		FontSizePixels: 28,
+		FontSizePixels: 32,
 	}
 
 	t.ApplyPreferences(prefs)

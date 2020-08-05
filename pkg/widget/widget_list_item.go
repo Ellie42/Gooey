@@ -4,23 +4,32 @@ import (
 	"git.agehadev.com/elliebelly/gooey/lib/dimension"
 )
 
+type ListContentWidgetConstructor func(w *WidgetListItem) Widget
+type ListContentWidgetUpdater func(w Widget, index int)
+
 type WidgetListItem struct {
 	BaseWidget
-	Parent          *List
-	ContentProvider ListContentProvider
+	Parent            *List
+	child             Widget
+	widgetConstructor ListContentWidgetConstructor
+	updater           ListContentWidgetUpdater
 }
 
 func (w *WidgetListItem) Init() {
-	w.ContentProvider.InitListItem(w)
+	w.child = w.widgetConstructor(w)
+	w.child.SetParent(w)
+	w.child.Init()
 }
 
 func (w *WidgetListItem) Render() {
-	w.ContentProvider.RenderListItem(w)
+	w.updater(w.child, w.GetIndex())
+	w.child.Render()
 }
 
-func NewWidgetListItem(content ListContentProvider) *WidgetListItem {
+func newWidgetListItem(content ListContentWidgetConstructor, updater ListContentWidgetUpdater) *WidgetListItem {
 	w := &WidgetListItem{
-		ContentProvider: content,
+		widgetConstructor: content,
+		updater:           updater,
 	}
 
 	w.Rect = dimension.Rect{0, 0, 1, 1}

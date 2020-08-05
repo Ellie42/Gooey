@@ -17,6 +17,31 @@ func (b BoundingBox) ToRect() Rect {
 	}
 }
 
+type DirectionalRectSized struct {
+	Top, Right, Bottom, Left Size
+}
+
+func (d DirectionalRectSized) ToDirectionalRect(resolution DimensionsInt) DirectionalRect {
+	rect := DirectionalRect{
+		SizedValueToRatio(d.Top, resolution.Height),
+		SizedValueToRatio(d.Right, resolution.Width),
+		SizedValueToRatio(d.Bottom, resolution.Height),
+		SizedValueToRatio(d.Left, resolution.Width),
+	}
+
+	return rect
+}
+
+func SizedValueToRatio(padding Size, resolutionDimension int) float32 {
+	if padding.Unit == SizeUnitRatio {
+		return padding.Amount
+	} else if padding.Unit == SizeUnitPixels {
+		return (1 / float32(resolutionDimension)) * padding.Amount
+	}
+
+	return 0
+}
+
 type DirectionalRect struct {
 	Top, Right, Bottom, Left float32
 }
@@ -33,11 +58,19 @@ func (r Rect) RelativeTo(parent Rect) Rect {
 	return r
 }
 
-func (r Rect) WithPadding(padding DirectionalRect) Rect {
+func (r Rect) WithPaddingAbsolute(padding DirectionalRect) Rect {
+	r.X += padding.Left
+	r.Y += padding.Bottom
+	r.Width -= padding.Right
+	r.Height -= padding.Top
+	return r
+}
+
+func (r Rect) WithPaddingRelative(padding DirectionalRect) Rect {
 	r.X += padding.Left * r.Width
 	r.Y += padding.Bottom * r.Height
-	r.Width -= (padding.Right + padding.Left)*r.Width
-	r.Height -= (padding.Top + padding.Bottom)*r.Height
+	r.Width -= (padding.Right + padding.Left) * r.Width
+	r.Height -= (padding.Top + padding.Bottom) * r.Height
 	return r
 }
 
@@ -81,8 +114,8 @@ func (r Rect) Scale(amount float32) Rect {
 }
 
 func (r Rect) Shrink(amount float32) Rect {
-	r.X += amount/2
-	r.Y += amount/2
+	r.X += amount / 2
+	r.Y += amount / 2
 	r.Width -= amount
 	r.Height -= amount
 	return r

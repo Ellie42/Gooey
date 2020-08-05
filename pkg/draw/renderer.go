@@ -53,11 +53,7 @@ const (
 	out vec4 outputColor;
 
 	void main() {
-		//vec4 sampled = vec4(1.0, 1.0, 1.0, texture2D(tex, _uv).a);
-		outputColor = _vcolour * texture2D(tex, _uv);
-		//outputColor = _vcolour * texture(tex, _uv);
-		//outputColor = texture(tex, _uv);
-		//outputColor = texture2D(tex, _uv);
+		outputColor = _vcolour * vec4(1.0, 1.0, 1.0, texture2D(tex, _uv).r);
 	}
 ` + "\x00"
 )

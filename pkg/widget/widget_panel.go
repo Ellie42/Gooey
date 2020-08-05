@@ -1,7 +1,6 @@
 package widget
 
 import (
-	"git.agehadev.com/elliebelly/gooey/lib/dimension"
 	"git.agehadev.com/elliebelly/gooey/pkg/widget/behaviour"
 	"git.agehadev.com/elliebelly/gooey/pkg/widget/settings"
 )
@@ -38,15 +37,7 @@ func NewPanel(pref *settings.WidgetPreferences, widget ...Widget) *PanelWidget {
 
 	pw.draggable.DragRect(pw.GetRectAbsolute)
 
-	pw.Rect = dimension.Rect{
-		X:      0,
-		Y:      0,
-		Width:  1,
-		Height: 1,
-	}
-
-	pw.Children = widget
-
+	pw.AddChildWithParent(pw, widget...)
 	pw.ApplyPreferences(pref)
 
 	return pw

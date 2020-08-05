@@ -13,6 +13,7 @@ type LinearLayout struct {
 }
 
 func (l *LinearLayout) GetChildRectAbsolute(index int) dimension.Rect {
+	//rect := l.GetRectAbsolute()
 	step := float32(1) / float32(len(l.Children))
 
 	childRect := dimension.Rect{
@@ -27,10 +28,11 @@ func (l *LinearLayout) GetChildRectAbsolute(index int) dimension.Rect {
 		childPadding := *l.Prefs.Padding
 
 		if index > 0 {
-			childPadding.Left = 0
+			// Remove padding for all after first so only outer edge has padding
+			childPadding.Left.Amount = 0
 		}
 
-		childRect = childRect.WithPadding(childPadding)
+		childRect = childRect.WithPaddingRelative(childPadding.ToDirectionalRect(Context.Resolution))
 	}
 
 	return childRect
@@ -38,6 +40,7 @@ func (l *LinearLayout) GetChildRectAbsolute(index int) dimension.Rect {
 
 func (l *LinearLayout) Render() {
 	l.RenderStyles(l.GetRectAbsolute(), l.Prefs.StyleSettings)
+	totalRect := l.GetRectAbsolute()
 
 	if l.Children == nil {
 		return
@@ -52,7 +55,7 @@ func (l *LinearLayout) Render() {
 			childAbsRect := child.GetRectAbsolute()
 
 			if childAbsRect.Width < rect.Width {
-				l.stepOffset -= (rect.Width - childAbsRect.Width)
+				l.stepOffset -= (rect.Width - childAbsRect.Width) / totalRect.Width
 			}
 		}
 	}
@@ -68,14 +71,6 @@ func (l *LinearLayout) Init() {
 	l.Initialised = true
 }
 
-func (ll *LinearLayout) AddChild(widget ...Widget) {
-	for _, wid := range widget {
-		wid.SetIndex(len(ll.Children))
-		wid.SetParent(ll)
-		ll.Children = append(ll.Children, wid)
-	}
-}
-
 func NewLinearLayout(pref *settings.WidgetPreferences, widget ...Widget) *LinearLayout {
 	ll := &LinearLayout{}
 
@@ -88,7 +83,7 @@ func NewLinearLayout(pref *settings.WidgetPreferences, widget ...Widget) *Linear
 
 	ll.FitToChildren = true
 
-	ll.AddChild(widget...)
+	ll.AddChildWithParent(ll, widget...)
 	ll.ApplyPreferences(pref)
 
 	return ll
