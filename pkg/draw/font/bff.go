@@ -1,7 +1,7 @@
 package font
 
 import (
-	"encoding/binary"
+	"git.agehadev.com/elliebelly/gooey/lib/binary"
 	"git.agehadev.com/elliebelly/gooey/lib/dimension"
 )
 
@@ -45,7 +45,7 @@ func (b *Font) Parse(str string) error {
 }
 
 func parseBFFHeader(bytes []byte) *BFF {
-	br := ByteReader{
+	br := binary.ByteReader{
 		Data: bytes,
 	}
 
@@ -80,30 +80,4 @@ func (b Font) GetCharacterUV(ascii uint8) dimension.BoundingBox {
 		float32(col)*colFactor + colFactor - ((1 - width) * colFactor),
 		float32(row)*rowFactor + rowFactor,
 	}
-}
-
-type ByteReader struct {
-	Data []byte
-
-	i uint
-}
-
-func (b *ByteReader) ReadUint32() (value uint32) {
-	value = binary.LittleEndian.Uint32(b.Data[b.i : b.i+4])
-
-	b.i += 4
-
-	return
-}
-
-func (b *ByteReader) ReadUint8() (value uint8) {
-	value = b.Data[b.i]
-
-	b.i++
-
-	return
-}
-
-func (b *ByteReader) Remaining() []uint8 {
-	return b.Data[b.i:]
 }
