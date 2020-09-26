@@ -13,16 +13,34 @@ type LinearLayout struct {
 }
 
 func (l *LinearLayout) GetChildRectAbsolute(index int) dimension.Rect {
-	//rect := l.GetRectAbsolute()
-	step := float32(1) / float32(len(l.Children))
+	parentRect := l.GetRectAbsolute()
 
+	if l.Prefs.Padding != nil {
+		parentRect = parentRect.WithPaddingAbsolute(l.Prefs.Padding.ToDirectionalRect(Context.Resolution))
+	}
+
+	stepOffset := float32(0)
+
+	for i := 0; i < index; i++ {
+		child := l.Children[i]
+		siblingRect := child.GetRectAbsolute().RelativeWithin(parentRect)
+		stepOffset += siblingRect.Width
+	}
+
+	remaining := 1 - stepOffset
+	remainingForChild := remaining / float32(len(l.Children)-index)
+
+	return l.getChildRectAbsolute(index, remainingForChild, stepOffset)
+}
+
+func (l *LinearLayout) getChildRectAbsolute(index int, step float32, stepOffset float32) dimension.Rect {
 	childRect := dimension.Rect{
-		X: float32(index)*step + l.stepOffset,
+		X: stepOffset,
 		Y: 0,
 		//TODO fix this when using > 2 children, it will surely overshoot
-		Width:  step - l.stepOffset,
+		Width:  step,
 		Height: 1,
-	}.RelativeTo(l.GetRectAbsolute())
+	}.RelativeToAbsolute(l.GetRectAbsolute())
 
 	if l.Prefs.Padding != nil {
 		childPadding := *l.Prefs.Padding
@@ -34,30 +52,18 @@ func (l *LinearLayout) GetChildRectAbsolute(index int) dimension.Rect {
 
 		childRect = childRect.WithPaddingRelative(childPadding.ToDirectionalRect(Context.Resolution))
 	}
-
 	return childRect
 }
 
 func (l *LinearLayout) Render() {
 	l.RenderStyles(l.GetRectAbsolute(), l.Prefs.StyleSettings)
-	totalRect := l.GetRectAbsolute()
 
 	if l.Children == nil {
 		return
 	}
 
-	for i, child := range l.Children {
+	for _, child := range l.Children {
 		child.Render()
-
-		rect := l.GetChildRectAbsolute(i)
-
-		if l.FitToChildren {
-			childAbsRect := child.GetRectAbsolute()
-
-			if childAbsRect.Width < rect.Width {
-				l.stepOffset -= (rect.Width - childAbsRect.Width) / totalRect.Width
-			}
-		}
 	}
 
 	l.stepOffset = 0
@@ -88,4 +94,3 @@ func NewLinearLayout(pref *settings.WidgetPreferences, widget ...Widget) *Linear
 
 	return ll
 }
-

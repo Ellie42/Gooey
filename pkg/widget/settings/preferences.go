@@ -2,6 +2,7 @@ package settings
 
 import (
 	"git.agehadev.com/elliebelly/gooey/lib/dimension"
+	"git.agehadev.com/elliebelly/gooey/pkg/widget/behaviour"
 	"git.agehadev.com/elliebelly/gooey/pkg/widget/styles"
 )
 
@@ -36,6 +37,7 @@ type WidgetPreferences struct {
 	Padding         *dimension.DirectionalRectSized
 	DimensionBounds *dimension.Dimensions
 	StyleSettings   *styles.StyleSettings
+	Behaviours      *behaviour.BehaviourSet
 
 	FixedRatioAxis FixedAspectAxis
 	FixedRatio     float32

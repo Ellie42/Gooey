@@ -12,14 +12,17 @@ type Input struct {
 	glfwWindow       *glfw.Window
 	onClickHandler   func()
 	onMouseUpHandler func()
+	onKeyDownHandler func(key glfw.Key)
+	onKeyUpHandler   func(key glfw.Key)
 }
 
 func (i *Input) Init(w *glfw.Window) {
 	i.glfwWindow = w
 	w.SetMouseButtonCallback(i.onMouseButtonCallback)
+	w.SetKeyCallback(i.onKeyButtonCallback)
 }
 
-func (i *Input) OnClick(handler func()) {
+func (i *Input) OnMouseDown(handler func()) {
 	i.onClickHandler = handler
 }
 
@@ -45,4 +48,24 @@ func (i *Input) onMouseButtonCallback(w *glfw.Window, button glfw.MouseButton, a
 
 func (i *Input) OnMouseUp(handler func()) {
 	i.onMouseUpHandler = handler
+}
+
+func (i *Input) onKeyButtonCallback(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
+	if action == glfw.Press {
+		if i.onKeyDownHandler != nil {
+			i.onKeyDownHandler(key)
+		}
+	} else if action == glfw.Release {
+		if i.onKeyUpHandler != nil {
+			i.onKeyUpHandler(key)
+		}
+	}
+}
+
+func (i *Input) OnKeyDown(handler func(key glfw.Key)) {
+	i.onKeyDownHandler = handler
+}
+
+func (i *Input) OnKeyUp(handler func(key glfw.Key)) {
+	i.onKeyUpHandler = handler
 }

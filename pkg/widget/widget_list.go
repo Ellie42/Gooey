@@ -63,8 +63,8 @@ func (l *List) Render() {
 		rowRect := l.GetChildRectAbsolute(i)
 
 		colours := []draw.RGBA{
-			draw.NewRGBAFromHex("A14643"),
-			draw.NewRGBAFromHex("A1514E"),
+			draw.NewRGBAFromHex("0e0e10"),
+			draw.NewRGBAFromHex("16161a"),
 		}
 
 		draw.SquareFilled(rowRect, colours[i%2])

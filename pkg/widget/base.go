@@ -3,13 +3,15 @@ package widget
 import (
 	"git.agehadev.com/elliebelly/gooey/lib/dimension"
 	"git.agehadev.com/elliebelly/gooey/pkg/draw"
+	"git.agehadev.com/elliebelly/gooey/pkg/widget/behaviour"
 	"git.agehadev.com/elliebelly/gooey/pkg/widget/settings"
 	"git.agehadev.com/elliebelly/gooey/pkg/widget/styles"
 	"math/rand"
 )
 
 type BaseWidget struct {
-	Prefs settings.WidgetPreferences
+	Prefs      settings.WidgetPreferences
+	Behaviours behaviour.BehaviourSet
 	styles.Styles
 
 	Parent      Widget
@@ -74,7 +76,7 @@ func (b *BaseWidget) GetRectAbsolute() dimension.Rect {
 	}
 
 	if b.Parent != nil {
-		rect = rect.RelativeTo(parentRect)
+		rect = rect.RelativeToAbsolute(parentRect)
 	}
 
 	return rect
@@ -101,7 +103,7 @@ func bindRectDimensionToSize(rect *dimension.Rect, bounds *dimension.Dimensions,
 		panic("bind rect dimension failed, rect cannot be nil")
 	}
 
-	pixelPos := rect.RelativeTo(parentRect).MultipliedByDimension(Context.Resolution)
+	pixelPos := rect.RelativeToAbsolute(parentRect).MultipliedByDimension(Context.Resolution)
 
 	switch dim {
 	case Width:
@@ -153,6 +155,7 @@ func (b *BaseWidget) SetParent(parent Widget) {
 }
 
 func (b *BaseWidget) Init() {
+	b.Behaviours.Init(&Context.EventManager, b.GetRectAbsolute)
 	b.InitChildren(b)
 }
 
@@ -174,6 +177,10 @@ func (b *BaseWidget) ApplyPreferences(p *settings.WidgetPreferences) {
 			b.Rect = *p.Rect
 		} else {
 			p.Rect = &dimension.Rect{0, 0, 1, 1}
+		}
+
+		if p.Behaviours != nil {
+			b.Behaviours = *b.Prefs.Behaviours
 		}
 	}
 }

@@ -2,6 +2,7 @@ package widget
 
 import (
 	"git.agehadev.com/elliebelly/gooey/lib/dimension"
+	"git.agehadev.com/elliebelly/gooey/lib/eventmanager"
 	"git.agehadev.com/elliebelly/gooey/pkg/draw"
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
@@ -54,8 +55,10 @@ func (w *Window) MakeCurrent() {
 
 func (w *Window) Init() {
 	w.Context.Input.Init(w.glfwWindow)
-	Context.Input.OnClick(w.Context.EventManager.HandleClickCollisions)
-	Context.Input.OnMouseUp(w.Context.EventManager.HandleMouseUp)
+	Context.Input.OnMouseDown(w.Context.EventManager.HandleMouseDown)
+	Context.Input.OnMouseUp(w.Context.EventManager.HandleMouseClickCollisions)
+	Context.Input.OnKeyDown(w.Context.EventManager.HandleKeyDown)
+	Context.Input.OnKeyUp(w.Context.EventManager.HandleKeyUp)
 	w.Context.EventManager.Init(w, w.glfwWindow)
 	w.Layout.Init()
 	w.Initialised = true
@@ -92,6 +95,8 @@ func newWindow() *Window {
 	w := &Window{
 		Layout: layout,
 	}
+
+	w.Context.EventManager = *eventmanager.NewEventManager()
 
 	w.Context.Rect = dimension.Rect{
 		X:      0,

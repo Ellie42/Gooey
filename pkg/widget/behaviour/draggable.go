@@ -6,7 +6,7 @@ import (
 )
 
 type Draggable struct {
-	DragRects []func() dimension.Rect
+	RectalBehaviour
 
 	isDragging         bool
 	inputHandle        int
@@ -23,16 +23,6 @@ func (d *Draggable) GetZIndex() int {
 	return 0
 }
 
-func (d *Draggable) GetRects() []dimension.Rect {
-	rects := make([]dimension.Rect, len(d.DragRects))
-
-	for _, rectFunc := range d.DragRects {
-		rects = append(rects, rectFunc())
-	}
-
-	return rects
-}
-
 func (d *Draggable) OnMouseUp() {
 	d.isDragging = false
 }
@@ -44,10 +34,6 @@ func (d *Draggable) OnClick(position dimension.Vector2) {
 
 func (d Draggable) IsDragging() bool {
 	return d.isDragging
-}
-
-func (d *Draggable) DragRect(rect ...func() dimension.Rect) {
-	d.DragRects = rect
 }
 
 func (d *Draggable) GetDragDiff() dimension.Vector2 {

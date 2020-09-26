@@ -50,7 +50,7 @@ type Rect struct {
 	X, Y, Width, Height float32
 }
 
-func (r Rect) RelativeTo(parent Rect) Rect {
+func (r Rect) RelativeToAbsolute(parent Rect) Rect {
 	r.X = parent.X + r.X*float32(parent.Width)
 	r.Y = parent.Y + r.Y*float32(parent.Height)
 	r.Width = r.Width * float32(parent.Width)
@@ -118,5 +118,13 @@ func (r Rect) Shrink(amount float32) Rect {
 	r.Y += amount / 2
 	r.Width -= amount
 	r.Height -= amount
+	return r
+}
+
+func (r Rect) RelativeWithin(parent Rect) Rect {
+	r.X = (r.X - parent.X) / parent.Width
+	r.Y = (r.Y - parent.Y) / parent.Height
+	r.Width /= parent.Width
+	r.Height /= parent.Height
 	return r
 }
