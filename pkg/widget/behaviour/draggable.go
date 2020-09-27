@@ -9,14 +9,12 @@ type Draggable struct {
 	RectalBehaviour
 
 	isDragging         bool
-	inputHandle        int
 	lastCursorPosition dimension.Vector2
-	eventManager       *eventmanager.EventManager
 }
 
 func (d *Draggable) Init(eventManager *eventmanager.EventManager) {
 	d.eventManager = eventManager
-	d.inputHandle = eventManager.RegisterRect(d)
+	d.inputHandle = eventManager.RegisterMouseClickHandler(d)
 }
 
 func (d *Draggable) GetZIndex() int {

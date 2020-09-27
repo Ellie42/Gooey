@@ -60,6 +60,7 @@ func (w *Window) Init() {
 	Context.Input.OnMouseUp(w.Context.EventManager.HandleMouseClickCollisions)
 	Context.Input.OnKeyDown(w.Context.EventManager.HandleKeyDown)
 	Context.Input.OnKeyUp(w.Context.EventManager.HandleKeyUp)
+	Context.Input.OnScroll(w.Context.EventManager.HandleMouseScroll)
 	w.Context.EventManager.Init(w, w.glfwWindow)
 	w.Layout.Init()
 	w.Initialised = true

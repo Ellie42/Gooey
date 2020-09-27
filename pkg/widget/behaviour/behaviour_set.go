@@ -8,6 +8,7 @@ import (
 type BehaviourSet struct {
 	*Draggable
 	*Clickable
+	*Scrollable
 }
 
 func (b *BehaviourSet) Init(manager *eventmanager.EventManager, rectProviders ...func() dimension.Rect) {
@@ -19,5 +20,10 @@ func (b *BehaviourSet) Init(manager *eventmanager.EventManager, rectProviders ..
 	if b.Clickable != nil {
 		b.Clickable.Init(manager)
 		b.Clickable.AddRectProviders(rectProviders...)
+	}
+
+	if b.Scrollable != nil {
+		b.Scrollable.Init(manager)
+		b.Scrollable.AddRectProviders(rectProviders...)
 	}
 }

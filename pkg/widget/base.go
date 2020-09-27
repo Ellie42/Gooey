@@ -149,9 +149,7 @@ func (b *BaseWidget) ApplyPreferences(p *settings.WidgetPreferences) {
 			p.Rect = &dimension.Rect{0, 0, 1, 1}
 		}
 
-		if p.Behaviours != nil {
-			b.Behaviours = *b.Prefs.Behaviours
-		}
+		b.Behaviours = b.Prefs.Behaviours
 	}
 }
 

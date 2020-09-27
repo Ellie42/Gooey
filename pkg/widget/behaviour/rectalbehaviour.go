@@ -1,9 +1,14 @@
 package behaviour
 
-import "git.agehadev.com/elliebelly/gooey/lib/dimension"
+import (
+	"git.agehadev.com/elliebelly/gooey/lib/dimension"
+	"git.agehadev.com/elliebelly/gooey/lib/eventmanager"
+)
 
 type RectalBehaviour struct {
-	Rects   []func() dimension.Rect
+	Rects        []func() dimension.Rect
+	eventManager *eventmanager.EventManager
+	inputHandle  int
 }
 
 func (d *RectalBehaviour) GetRects() []dimension.Rect {

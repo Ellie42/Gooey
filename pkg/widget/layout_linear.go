@@ -142,6 +142,12 @@ func (l *LinearLayout) RecalculateChildRects() {
 			stepOffset += siblingRect.Height
 		}
 
+		cPrefs := l.Children[i].GetPrefs()
+
+		if cPrefs.Padding != nil {
+			childRect = childRect.WithPaddingAbsolute(cPrefs.Padding.ToDirectionalRect(Context.Resolution))
+		}
+
 		l.childRects[i] = childRect
 	}
 

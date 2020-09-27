@@ -90,7 +90,12 @@ func Text(rect dimension.Rect, str string, sizePixels int) {
 		1.0 / float32(CurrentResolution.Height),
 	}
 
-	rect.Y = float32(math.Round(float64(rect.Y/perPixel.Y))) * perPixel.Y
+	halfPixel := dimension.Vector2{
+		perPixel.X / 2.0,
+		perPixel.Y / 2.0,
+	}
+
+	rect.Y = float32(math.Round(float64(rect.Y/perPixel.Y)))*perPixel.Y + halfPixel.Y
 
 	for i, c := range str {
 		charWidth := currentFont.BFF.CharacterWidths[c]
@@ -98,7 +103,7 @@ func Text(rect dimension.Rect, str string, sizePixels int) {
 		charHeightRelative := float32(1) * scaledCharHeight
 		charWidthRelative := (float32(charWidth) / float32(charHeight)) * charHeightRelative / resRatioX
 
-		cumStartPosX = float32(math.Round(float64(cumStartPosX/perPixel.X))) * perPixel.X
+		cumStartPosX = float32(math.Round(float64(cumStartPosX/perPixel.X)))*perPixel.X + halfPixel.X
 
 		copy(textVertBuffer[i*6:], preparePositionsForGL([]dimension.Vector3{
 			{cumStartPosX, rect.Y + charHeightRelative, 1},

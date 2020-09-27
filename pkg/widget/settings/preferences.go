@@ -38,7 +38,7 @@ type WidgetPreferences struct {
 	Padding         *dimension.DirectionalRectSized
 	DimensionBounds *dimension.Dimensions
 	StyleSettings   *styles.StyleSettings
-	Behaviours      *behaviour.BehaviourSet
+	Behaviours      behaviour.BehaviourSet
 
 	FixedRatioAxis FixedAspectAxis
 	FixedRatio     float32

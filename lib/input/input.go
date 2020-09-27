@@ -14,12 +14,14 @@ type Input struct {
 	onMouseUpHandler func()
 	onKeyDownHandler func(key glfw.Key)
 	onKeyUpHandler   func(key glfw.Key)
+	onScrollHandler  func(xoff float64, yoff float64)
 }
 
 func (i *Input) Init(w *glfw.Window) {
 	i.glfwWindow = w
 	w.SetMouseButtonCallback(i.onMouseButtonCallback)
 	w.SetKeyCallback(i.onKeyButtonCallback)
+	w.SetScrollCallback(i.onScrollCallback)
 }
 
 func (i *Input) OnMouseDown(handler func()) {
@@ -68,4 +70,12 @@ func (i *Input) OnKeyDown(handler func(key glfw.Key)) {
 
 func (i *Input) OnKeyUp(handler func(key glfw.Key)) {
 	i.onKeyUpHandler = handler
+}
+
+func (i *Input) OnScroll(handler func(xoff float64, yoff float64)) {
+	i.onScrollHandler = handler
+}
+
+func (i *Input) onScrollCallback(w *glfw.Window, xoff float64, yoff float64) {
+	i.onScrollHandler(xoff, yoff)
 }

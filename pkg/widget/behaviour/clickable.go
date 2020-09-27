@@ -8,13 +8,11 @@ import (
 
 type Clickable struct {
 	RectalBehaviour
-	eventManager *eventmanager.EventManager
-	inputHandle  int
 }
 
 func (c *Clickable) Init(manager *eventmanager.EventManager) {
 	c.eventManager = manager
-	c.inputHandle = manager.RegisterRect(c)
+	c.inputHandle = manager.RegisterMouseClickHandler(c)
 }
 
 func (c Clickable) GetZIndex() int {

@@ -3,6 +3,7 @@ package widget
 import (
 	"git.agehadev.com/elliebelly/gooey/lib/dimension"
 	"git.agehadev.com/elliebelly/gooey/pkg/draw"
+	"git.agehadev.com/elliebelly/gooey/pkg/widget/behaviour"
 	"git.agehadev.com/elliebelly/gooey/pkg/widget/settings"
 	"math"
 )
@@ -81,10 +82,6 @@ func (l *List) RecalculateChildRects() {
 //	return rowRect
 //}
 
-func (l *List) Init() {
-	l.InitChildren(l)
-}
-
 func NewListStringContentWidget(w *WidgetListItem) Widget {
 	t := NewTextWidget(nil, "")
 
@@ -142,6 +139,12 @@ func NewList(provider ListContentWidgetConstructor, updater ListContentWidgetUpd
 		Updater:         updater,
 		initialisedMap:  make(map[int]bool),
 	}
+
+	if prefs == nil {
+		prefs = &settings.WidgetPreferences{}
+	}
+
+	prefs.Behaviours.Scrollable = &behaviour.Scrollable{}
 
 	list.Rect.Width = 1
 	list.Rect.Height = 1

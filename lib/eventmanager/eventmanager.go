@@ -1,7 +1,6 @@
 package eventmanager
 
 import (
-	"fmt"
 	"git.agehadev.com/elliebelly/gooey/lib/dimension"
 	"git.agehadev.com/elliebelly/gooey/pkg/draw"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -11,34 +10,80 @@ import (
 type KeyEventListener func(key glfw.Key)
 
 type EventManager struct {
-	mouseRectHandlers map[int]MouseRectClickHandler
-	rectIndex         int
-	areaContext       EventAreaContext
-	glfwWindow        *glfw.Window
+	mouseClickHandlers  map[int]MouseClickHandler
+	mouseScrollHandlers map[int]MouseScrollHandler
+	mouseClickRectIndex int
+	areaContext         EventAreaContext
+	glfwWindow          *glfw.Window
 
-	keyDownListeners map[glfw.Key][]KeyEventListener
-	keyUpListeners   map[glfw.Key][]KeyEventListener
+	keyDownListeners     map[glfw.Key][]KeyEventListener
+	keyUpListeners       map[glfw.Key][]KeyEventListener
+	mouseScrollRectIndex int
 }
 
 type EventAreaContext interface {
 	GetTotalArea() dimension.DimensionsFloat32
 }
 
-type MouseRectClickHandler interface {
+type RectHandler interface {
 	GetZIndex() int
 	GetRects() []dimension.Rect
+}
+
+type MouseClickHandler interface {
+	RectHandler
 	OnClick(position dimension.Vector2)
 	OnMouseUp()
 }
 
+type ScrollDirection int
+
+const (
+	ScrollDirectionUp ScrollDirection = iota
+	ScrollDirectionDown
+)
+
+type MouseScrollHandler interface {
+	RectHandler
+	OnScroll(xoff, yoff float64)
+}
+
 func (e *EventManager) HandleMouseDown() {
+	mouseX, mouseY := e.glfwWindow.GetCursorPos()
+
+	foundIndex, foundCollision := e.findHandledWidgetAtPosition(func(i int) RectHandler {
+		return e.mouseClickHandlers[i]
+	}, len(e.mouseClickHandlers), mouseX, mouseY)
+
+	if !foundCollision {
+		return
+	}
+
+	e.mouseClickHandlers[foundIndex].OnClick(dimension.Vector2{
+		float32(mouseX), float32(mouseY),
+	})
+}
+
+func (e *EventManager) HandleMouseScroll(xoff float64, yoff float64) {
+	mouseX, mouseY := e.glfwWindow.GetCursorPos()
+
+	foundIndex, foundCollision := e.findHandledWidgetAtPosition(func(i int) RectHandler {
+		return e.mouseScrollHandlers[i]
+	}, len(e.mouseScrollHandlers), mouseX, mouseY)
+
+	if !foundCollision {
+		return
+	}
+
+	e.mouseScrollHandlers[foundIndex].OnScroll(xoff, yoff)
+}
+
+func (e *EventManager) findHandledWidgetAtPosition(handlerProvider func(i int) RectHandler, handlerCount int, mouseX float64, mouseY float64) (int, bool) {
 	lowestZIndex := math.MaxInt64
-	foundIndex := 0
+	foundIndex := -1
 	foundCollision := false
 
 	res := e.areaContext.GetTotalArea()
-
-	mouseX, mouseY := e.glfwWindow.GetCursorPos()
 
 	mouseY = float64(res.Height) - mouseY
 
@@ -46,9 +91,8 @@ func (e *EventManager) HandleMouseDown() {
 		res.Width, res.Height, res.Width, res.Height,
 	}
 
-	fmt.Printf("%f %f - click\n", mouseX, mouseY)
-
-	for handlerIndex, rectHandler := range e.mouseRectHandlers {
+	for handlerIndex := 0; handlerIndex < handlerCount; handlerIndex++ {
+		rectHandler := handlerProvider(handlerIndex)
 		zIndex := rectHandler.GetZIndex()
 		rects := rectHandler.GetRects()
 
@@ -70,21 +114,25 @@ func (e *EventManager) HandleMouseDown() {
 		}
 	}
 
-	if !foundCollision {
-		return
-	}
-
-	e.mouseRectHandlers[foundIndex].OnClick(dimension.Vector2{
-		float32(mouseX), float32(mouseY),
-	})
+	return foundIndex, foundCollision
 }
 
-func (e *EventManager) RegisterRect(d MouseRectClickHandler) (index int) {
-	index = e.rectIndex
+func (e *EventManager) RegisterMouseScrollHandler(d MouseScrollHandler) (index int) {
+	index = e.mouseScrollRectIndex
 
-	e.mouseRectHandlers[e.rectIndex] = d
+	e.mouseScrollHandlers[e.mouseScrollRectIndex] = d
 
-	e.rectIndex++
+	e.mouseScrollRectIndex++
+
+	return
+}
+
+func (e *EventManager) RegisterMouseClickHandler(d MouseClickHandler) (index int) {
+	index = e.mouseClickRectIndex
+
+	e.mouseClickHandlers[e.mouseClickRectIndex] = d
+
+	e.mouseClickRectIndex++
 
 	return
 }
@@ -104,7 +152,7 @@ func (e *EventManager) MousePosition() dimension.Vector2 {
 }
 
 func (e *EventManager) HandleMouseClickCollisions() {
-	for _, handler := range e.mouseRectHandlers {
+	for _, handler := range e.mouseClickHandlers {
 		handler.OnMouseUp()
 	}
 }
@@ -154,8 +202,9 @@ func (e *EventManager) AddOnKeyUpListener(key glfw.Key, listener KeyEventListene
 
 func NewEventManager() *EventManager {
 	return &EventManager{
-		mouseRectHandlers: make(map[int]MouseRectClickHandler, 0),
-		keyDownListeners:  make(map[glfw.Key][]KeyEventListener),
-		keyUpListeners:    make(map[glfw.Key][]KeyEventListener),
+		mouseClickHandlers:  make(map[int]MouseClickHandler, 0),
+		mouseScrollHandlers: make(map[int]MouseScrollHandler, 0),
+		keyDownListeners:    make(map[glfw.Key][]KeyEventListener),
+		keyUpListeners:      make(map[glfw.Key][]KeyEventListener),
 	}
 }
