@@ -33,6 +33,7 @@ const (
 )
 
 type WidgetPreferences struct {
+	Name            string
 	Rect            *dimension.Rect
 	Padding         *dimension.DirectionalRectSized
 	DimensionBounds *dimension.Dimensions

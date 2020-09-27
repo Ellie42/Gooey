@@ -4,7 +4,7 @@ import (
 	"git.agehadev.com/elliebelly/gooey/fonts"
 	"git.agehadev.com/elliebelly/gooey/lib/dimension"
 	"git.agehadev.com/elliebelly/gooey/pkg/draw/font"
-	"github.com/go-gl/gl/v4.6-core/gl"
+	"github.com/go-gl/gl/v4.6-compatibility/gl"
 )
 
 var currentFont *font.Font
@@ -23,8 +23,10 @@ func Text(rect dimension.Rect, str string, sizePixels int) {
 	SwitchBlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
 	if currentFont == nil {
-		currentFont = font.LoadFromHexString(fonts.SourceSansPro)
+		currentFont = font.LoadFromHexString(fonts.SourceCodePro24)
 	}
+
+	gl.Enable(gl.TEXTURE_2D)
 
 	if textVAO == 0 {
 		textVAO = genVAO(1)[0]
@@ -61,12 +63,18 @@ func Text(rect dimension.Rect, str string, sizePixels int) {
 			gl.Ptr(currentFont.Data),
 		)
 
-		gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-		gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-		gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-		gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_BASE_LEVEL, 0)
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LEVEL, 0)
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+		//gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_LOD, 0)
+		//gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LOD, 0)
+		//gl.TextureParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LEVEL, 0)
 
-		gl.GenerateMipmap(gl.TEXTURE_2D)
+		//gl.GenerateMipmap(gl.TEXTURE_2D)
+		//gl.BindTexture(gl.TEXTURE_2D, 0)
 	}
 
 	resRatioX := float32(CurrentResolution.Width) / float32(CurrentResolution.Height)

@@ -1,6 +1,6 @@
 package draw
 
-import "github.com/go-gl/gl/v4.6-core/gl"
+import "github.com/go-gl/gl/v4.6-compatibility/gl"
 
 func genVAO(n int32) []uint32 {
 	vaos := make([]uint32, n)

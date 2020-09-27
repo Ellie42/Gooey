@@ -4,6 +4,7 @@ import (
 	"git.agehadev.com/elliebelly/gooey/lib/dimension"
 	"git.agehadev.com/elliebelly/gooey/lib/eventmanager"
 	"git.agehadev.com/elliebelly/gooey/pkg/draw"
+	"github.com/go-gl/gl/v4.6-compatibility/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
@@ -44,7 +45,7 @@ func (w *Window) create(preferences WindowPreferences) error {
 func (w *Window) onWindowSetSize(glfwWindow *glfw.Window, width int, height int) {
 	w.Context.Resolution.Width = width
 	w.Context.Resolution.Height = height
-	//gl.Viewport(0, 0, int32(width), int32(height))
+	gl.Viewport(0, 0, int32(width), int32(height))
 }
 
 func (w *Window) MakeCurrent() {
@@ -87,6 +88,10 @@ func (w *Window) close() {
 
 func (w *Window) Render() {
 	w.Layout.Render()
+}
+
+func (w *Window) RecalculateRect() {
+	w.Layout.RecalculateChildRects()
 }
 
 func newWindow() *Window {

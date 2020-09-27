@@ -49,6 +49,7 @@ func (g *Gooey) Loop() {
 
 			g.Renderer.Clear(widget.Context.Resolution)
 
+			w.RecalculateRect()
 			w.Render()
 
 			w.Tick()

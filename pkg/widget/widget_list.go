@@ -24,26 +24,69 @@ type List struct {
 	Updater        ListContentWidgetUpdater
 }
 
-func (l *List) GetChildRectAbsolute(index int) dimension.Rect {
-	rect := l.GetRectAbsolute()
-	resolution := Context.Resolution
-	maxHeightPixels := 32
-	maxRows := float32(math.Ceil(float64(resolution.Height) / float64(maxHeightPixels)))
-	heightStep := (1 / maxRows) * rect.Height
-
-	rowRect := dimension.Rect{
-		rect.X, rect.Y + heightStep*((maxRows-1)-float32(index)), rect.Width, heightStep,
+func (l *List) RecalculateChildRects() {
+	if l.Children == nil {
+		return
 	}
 
-	return rowRect
+	if len(l.childRects) < len(l.Children) {
+		l.childRects = make([]dimension.Rect, len(l.Children))
+	}
+
+	for i, _ := range l.Children {
+		rect := l.GetRectAbsolute()
+
+		if l.Prefs.Padding != nil {
+			rect = rect.WithPaddingAbsolute(l.Prefs.Padding.ToDirectionalRect(Context.Resolution))
+		}
+
+		resolution := Context.Resolution
+		maxHeightPixels := 32
+
+		rectHeightPx := int(rect.Height * float32(resolution.Height))
+		relativeRowHeight := float32(maxHeightPixels) / float32(rectHeightPx)
+
+		maxRows := float32(math.Ceil(float64(resolution.Height) / float64(maxHeightPixels)))
+		heightStep := relativeRowHeight
+
+		diffHeight := 1.0 / relativeRowHeight
+		frac := 1 - (diffHeight - float32(int(diffHeight)))
+
+		if (1 - 1e-6) < frac {
+			frac = 0
+		}
+
+		rowRect := dimension.Rect{
+			rect.X, -(frac * relativeRowHeight) + rect.Y + heightStep*((maxRows-1)-float32(i)), rect.Width, heightStep,
+		}
+
+		l.childRects[i] = rowRect
+	}
+	for _, c := range l.Children {
+		c.RecalculateChildRects()
+	}
 }
+
+//func (l *List) GetChildRectAbsolute(index int) dimension.Rect {
+//	rect := l.GetRectAbsolute()
+//	resolution := Context.Resolution
+//	maxHeightPixels := 32
+//	maxRows := float32(math.Ceil(float64(resolution.Height) / float64(maxHeightPixels)))
+//	heightStep := (1 / maxRows) * rect.Height
+//
+//	rowRect := dimension.Rect{
+//		rect.X, rect.Y + heightStep*((maxRows-1)-float32(index)), rect.Width, heightStep,
+//	}
+//
+//	return rowRect
+//}
 
 func (l *List) Init() {
 	l.InitChildren(l)
 }
 
 func NewListStringContentWidget(w *WidgetListItem) Widget {
-	t := NewTextWidget(nil)
+	t := NewTextWidget(nil, "")
 
 	t.Text = "I have nothing to say"
 
@@ -59,16 +102,9 @@ func (l *List) Render() {
 		l.Children = append(l.Children, make([]*WidgetListItem, int(maxRows)-len(l.Children))...)
 	}
 
+	newChildren := false
+
 	for i := 0; i < int(maxRows); i++ {
-		rowRect := l.GetChildRectAbsolute(i)
-
-		colours := []draw.RGBA{
-			draw.NewRGBAFromHex("0e0e10"),
-			draw.NewRGBAFromHex("16161a"),
-		}
-
-		draw.SquareFilled(rowRect, colours[i%2])
-
 		if l.Children[i] == nil {
 			listItem := newWidgetListItem(l.ContentProvider, l.Updater)
 
@@ -78,9 +114,25 @@ func (l *List) Render() {
 			listItem.Init()
 
 			l.Children[i] = listItem
+			newChildren = true
+		}
+	}
+
+	if newChildren {
+		l.RecalculateChildRects()
+	}
+
+	for i, child := range l.Children {
+		rowRect := l.GetChildRectAbsolute(i)
+
+		colours := []draw.RGBA{
+			draw.NewRGBAFromHex("0e0e10"),
+			draw.NewRGBAFromHex("16161a"),
 		}
 
-		l.Children[i].Render()
+		draw.SquareFilled(rowRect, colours[i%2])
+
+		child.Render()
 	}
 }
 

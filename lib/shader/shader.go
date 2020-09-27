@@ -2,7 +2,7 @@ package shader
 
 import (
 	"fmt"
-	"github.com/go-gl/gl/v4.6-core/gl"
+	"github.com/go-gl/gl/v4.6-compatibility/gl"
 	"strings"
 )
 

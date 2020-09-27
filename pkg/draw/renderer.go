@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"git.agehadev.com/elliebelly/gooey/lib/dimension"
 	"git.agehadev.com/elliebelly/gooey/lib/shader"
-	"github.com/go-gl/gl/v4.6-core/gl"
+	"github.com/go-gl/gl/v4.6-compatibility/gl"
 	"github.com/go-gl/mathgl/mgl32"
 )
 

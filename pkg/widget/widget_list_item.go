@@ -17,7 +17,7 @@ type WidgetListItem struct {
 
 func (w *WidgetListItem) Init() {
 	w.child = w.widgetConstructor(w)
-	w.child.SetParent(w)
+	w.AddChildWithParent(w, w.child)
 	w.child.Init()
 }
 
