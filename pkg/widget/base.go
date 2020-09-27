@@ -109,6 +109,16 @@ func (b *BaseWidget) GetRectAbsolute() dimension.Rect {
 		rect = rect.RelativeToAbsolute(parentRect)
 	}
 
+	perPixel := dimension.Vector2{
+		1.0 / float32(Context.Resolution.Width),
+		1.0 / float32(Context.Resolution.Height),
+	}
+
+	xPixels := rect.X / perPixel.X
+	xFrac := xPixels - float32(int(xPixels))
+
+	rect.X += xFrac * perPixel.X
+
 	return rect
 }
 
