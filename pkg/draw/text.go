@@ -5,6 +5,7 @@ import (
 	"git.agehadev.com/elliebelly/gooey/lib/dimension"
 	"git.agehadev.com/elliebelly/gooey/pkg/draw/font"
 	"github.com/go-gl/gl/v4.6-compatibility/gl"
+	"math"
 )
 
 var currentFont *font.Font
@@ -84,11 +85,20 @@ func Text(rect dimension.Rect, str string, sizePixels int) {
 	desiredPixelHeight := float32(sizePixels)
 	scaledCharHeight := 1 / float32(CurrentResolution.Height) * desiredPixelHeight
 
+	perPixel := dimension.Vector2{
+		1.0 / float32(CurrentResolution.Width),
+		1.0 / float32(CurrentResolution.Height),
+	}
+
+	rect.Y = float32(math.Round(float64(rect.Y/perPixel.Y))) * perPixel.Y
+
 	for i, c := range str {
 		charWidth := currentFont.BFF.CharacterWidths[c]
 
 		charHeightRelative := float32(1) * scaledCharHeight
 		charWidthRelative := (float32(charWidth) / float32(charHeight)) * charHeightRelative / resRatioX
+
+		cumStartPosX = float32(math.Round(float64(cumStartPosX/perPixel.X))) * perPixel.X
 
 		copy(textVertBuffer[i*6:], preparePositionsForGL([]dimension.Vector3{
 			{cumStartPosX, rect.Y + charHeightRelative, 1},
